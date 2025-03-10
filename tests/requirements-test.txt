@@ -1,0 +1,8 @@
+# Test dependencies
+pytest==7.4.0
+pytest-django==4.5.2
+pytest-cov==4.1.0
+selenium==4.12.0
+webdriver-manager==4.0.0
+freezegun==1.2.2 # For time-dependent tests
+responses==0.23.1 # For mocking HTTP responses 

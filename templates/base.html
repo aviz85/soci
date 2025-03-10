@@ -11,132 +11,169 @@
     {% block extra_css %}{% endblock %}
 </head>
 <body>
-    <header class="main-header">
-        <div class="container">
-            <div class="header-left">
-                <a href="/" class="logo">SociSphere</a>
-                <div class="search-bar">
-                    <i class="fas fa-search"></i>
-                    <input type="text" id="global-search" placeholder="Search for people, communities, or posts...">
-                </div>
-            </div>
-            <nav class="main-nav">
-                <ul>
-                    <li><a href="/" class="nav-link"><i class="fas fa-home"></i> Home</a></li>
-                    <li><a href="/communities" class="nav-link"><i class="fas fa-users"></i> Communities</a></li>
-                    <li>
-                        <a href="/messages" class="nav-link">
-                            <i class="fas fa-envelope"></i> Messages
-                            <span class="badge hidden" id="message-badge">0</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="/notifications" class="nav-link">
-                            <i class="fas fa-bell"></i> Notifications
-                            <span class="badge hidden" id="notification-badge">0</span>
-                        </a>
-                    </li>
-                </ul>
-            </nav>
-            <div class="header-right">
-                <div class="user-menu" id="logged-in-menu">
-                    <button class="user-button">
-                        <img src="{% static 'img/default-avatar.svg' %}" alt="User" class="user-avatar" id="header-user-avatar">
-                        <span id="header-username">User</span>
-                        <i class="fas fa-caret-down"></i>
-                    </button>
-                    <div class="user-dropdown hidden">
-                        <a href="/profile" class="dropdown-item"><i class="fas fa-user"></i> Profile</a>
-                        <a href="/settings" class="dropdown-item"><i class="fas fa-cog"></i> Settings</a>
-                        <a href="#" class="dropdown-item" id="logout-button"><i class="fas fa-sign-out-alt"></i> Logout</a>
+    <div class="layout-wrapper">
+        <header class="layout-header navbar navbar-sticky navbar-shadow">
+            <div class="container">
+                <div class="navbar-section">
+                    <a href="/" class="navbar-brand">SociSphere</a>
+                    <div class="navbar-search">
+                        <i class="fas fa-search navbar-search-icon"></i>
+                        <input type="text" id="global-search" class="navbar-search-input form-control" placeholder="Search for people, communities, or posts...">
                     </div>
                 </div>
-                <div class="auth-buttons hidden" id="logged-out-menu">
-                    <a href="/login" class="btn btn-outlined">Log In</a>
-                    <a href="/register" class="btn btn-primary">Sign Up</a>
+                
+                <button class="navbar-toggler" id="navbar-toggler">
+                    <i class="fas fa-bars"></i>
+                </button>
+                
+                <div class="navbar-collapse" id="navbar-main">
+                    <ul class="navbar-nav">
+                        <li class="navbar-item">
+                            <a href="/" class="navbar-link navbar-link-icon {% if request.path == '/' %}active{% endif %}">
+                                <i class="fas fa-home"></i>
+                                <span>Home</span>
+                            </a>
+                        </li>
+                        <li class="navbar-item">
+                            <a href="/communities" class="navbar-link navbar-link-icon {% if request.path == '/communities' %}active{% endif %}">
+                                <i class="fas fa-users"></i>
+                                <span>Communities</span>
+                            </a>
+                        </li>
+                        <li class="navbar-item">
+                            <a href="/messages" class="navbar-link navbar-link-icon {% if request.path == '/messages' %}active{% endif %}">
+                                <i class="fas fa-envelope"></i>
+                                <span>Messages</span>
+                                <span class="badge hidden" id="message-badge">0</span>
+                            </a>
+                        </li>
+                        <li class="navbar-item">
+                            <a href="/notifications" class="navbar-link navbar-link-icon {% if request.path == '/notifications' %}active{% endif %}">
+                                <i class="fas fa-bell"></i>
+                                <span>Notifications</span>
+                                <span class="badge hidden" id="notification-badge">0</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="navbar-section">
+                    <div class="navbar-user" id="logged-in-menu">
+                        <div class="navbar-dropdown">
+                            <button class="navbar-dropdown-toggle">
+                                <img src="{% static 'img/default-avatar.svg' %}" alt="User" class="navbar-user-avatar" id="header-user-avatar">
+                                <span id="header-username">User</span>
+                            </button>
+                            <div class="navbar-dropdown-menu">
+                                <a href="/profile" class="navbar-dropdown-item">
+                                    <i class="fas fa-user"></i> Profile
+                                </a>
+                                <a href="/settings" class="navbar-dropdown-item">
+                                    <i class="fas fa-cog"></i> Settings
+                                </a>
+                                <div class="navbar-dropdown-divider"></div>
+                                <a href="#" class="navbar-dropdown-item" id="logout-button">
+                                    <i class="fas fa-sign-out-alt"></i> Logout
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="auth-buttons hidden" id="logged-out-menu">
+                        <a href="/login" class="btn btn-outline-primary">Log In</a>
+                        <a href="/register" class="btn btn-primary">Sign Up</a>
+                    </div>
                 </div>
             </div>
-        </div>
-    </header>
+        </header>
 
-    <div class="search-overlay hidden" id="search-overlay">
-        <div class="search-container">
-            <div class="search-header">
-                <h2>Search SociSphere</h2>
-                <button class="close-search"><i class="fas fa-times"></i></button>
-            </div>
-            <div class="search-input-container">
-                <i class="fas fa-search"></i>
-                <input type="text" id="overlay-search-input" placeholder="Search for people, communities, or posts...">
-            </div>
-            <div class="search-tabs">
-                <button class="search-tab active" data-tab="all">All</button>
-                <button class="search-tab" data-tab="people">People</button>
-                <button class="search-tab" data-tab="communities">Communities</button>
-                <button class="search-tab" data-tab="posts">Posts</button>
-            </div>
-            <div class="search-results" id="search-results">
-                <div class="search-loading hidden">
-                    <div class="loader"></div>
-                    <p>Searching...</p>
+        <div class="search-overlay hidden" id="search-overlay">
+            <div class="container">
+                <div class="card p-4">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-semibold">Search SociSphere</h2>
+                        <button class="btn-icon" id="close-search">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="form-group relative mb-4">
+                        <i class="fas fa-search absolute left-3 top-3 text-gray-500"></i>
+                        <input type="text" id="overlay-search-input" class="form-control pl-8" placeholder="Search for people, communities, or posts...">
+                    </div>
+                    <div class="flex mb-4 gap-2">
+                        <button class="btn btn-sm active" data-tab="all">All</button>
+                        <button class="btn btn-sm btn-outline-primary" data-tab="people">People</button>
+                        <button class="btn btn-sm btn-outline-primary" data-tab="communities">Communities</button>
+                        <button class="btn btn-sm btn-outline-primary" data-tab="posts">Posts</button>
+                    </div>
+                    <div id="search-results">
+                        <div class="search-loading hidden flex flex-col items-center justify-center p-6">
+                            <div class="loading-spinner mb-2"></div>
+                            <p class="text-secondary">Searching...</p>
+                        </div>
+                        <div class="empty-search-message text-center p-6">
+                            <p class="text-gray-500">Start typing to search SociSphere</p>
+                        </div>
+                        <div class="search-results-list hidden" id="search-results-list"></div>
+                    </div>
                 </div>
-                <div class="empty-search-message">
-                    <p>Start typing to search SociSphere</p>
-                </div>
-                <div class="search-results-list hidden" id="search-results-list"></div>
             </div>
         </div>
+
+        <main class="layout-main">
+            {% block content %}{% endblock %}
+        </main>
+
+        <footer class="layout-footer">
+            <div class="container">
+                <div class="layout-grid">
+                    <div class="layout-grid-col-4">
+                        <h2 class="text-xl font-bold mb-2">SociSphere</h2>
+                        <p class="text-secondary mb-4">Connect, Share, Discover</p>
+                    </div>
+                    <div class="layout-grid-col-8">
+                        <div class="layout-grid">
+                            <div class="layout-grid-col-4">
+                                <h3 class="text-lg font-semibold mb-3">SociSphere</h3>
+                                <ul class="mb-4">
+                                    <li class="mb-2"><a href="/about" class="text-secondary hover:text-primary">About Us</a></li>
+                                    <li class="mb-2"><a href="/careers" class="text-secondary hover:text-primary">Careers</a></li>
+                                    <li class="mb-2"><a href="/press" class="text-secondary hover:text-primary">Press</a></li>
+                                </ul>
+                            </div>
+                            <div class="layout-grid-col-4">
+                                <h3 class="text-lg font-semibold mb-3">Resources</h3>
+                                <ul class="mb-4">
+                                    <li class="mb-2"><a href="/help" class="text-secondary hover:text-primary">Help Center</a></li>
+                                    <li class="mb-2"><a href="/guidelines" class="text-secondary hover:text-primary">Community Guidelines</a></li>
+                                    <li class="mb-2"><a href="/support" class="text-secondary hover:text-primary">Support</a></li>
+                                </ul>
+                            </div>
+                            <div class="layout-grid-col-4">
+                                <h3 class="text-lg font-semibold mb-3">Legal</h3>
+                                <ul class="mb-4">
+                                    <li class="mb-2"><a href="/terms" class="text-secondary hover:text-primary">Terms of Service</a></li>
+                                    <li class="mb-2"><a href="/privacy" class="text-secondary hover:text-primary">Privacy Policy</a></li>
+                                    <li class="mb-2"><a href="/cookies" class="text-secondary hover:text-primary">Cookie Policy</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <hr class="border-light my-4">
+                <div class="flex justify-between items-center">
+                    <p class="text-tertiary">&copy; 2023 SociSphere. All rights reserved.</p>
+                    <div class="flex gap-3">
+                        <a href="#" class="btn-icon btn-sm text-tertiary hover:text-primary"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="btn-icon btn-sm text-tertiary hover:text-primary"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="btn-icon btn-sm text-tertiary hover:text-primary"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="btn-icon btn-sm text-tertiary hover:text-primary"><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+            </div>
+        </footer>
     </div>
 
-    <main class="site-main">
-        {% block content %}{% endblock %}
-    </main>
-
-    <footer class="main-footer">
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-logo">
-                    <h2>SociSphere</h2>
-                    <p>Connect, Share, Discover</p>
-                </div>
-                <div class="footer-links">
-                    <div class="footer-column">
-                        <h3>SociSphere</h3>
-                        <ul>
-                            <li><a href="/about">About Us</a></li>
-                            <li><a href="/careers">Careers</a></li>
-                            <li><a href="/press">Press</a></li>
-                        </ul>
-                    </div>
-                    <div class="footer-column">
-                        <h3>Resources</h3>
-                        <ul>
-                            <li><a href="/help">Help Center</a></li>
-                            <li><a href="/guidelines">Community Guidelines</a></li>
-                            <li><a href="/support">Support</a></li>
-                        </ul>
-                    </div>
-                    <div class="footer-column">
-                        <h3>Legal</h3>
-                        <ul>
-                            <li><a href="/terms">Terms of Service</a></li>
-                            <li><a href="/privacy">Privacy Policy</a></li>
-                            <li><a href="/cookies">Cookie Policy</a></li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-            <div class="footer-bottom">
-                <p>&copy; 2023 SociSphere. All rights reserved.</p>
-                <div class="social-links">
-                    <a href="#" class="social-link"><i class="fab fa-facebook-f"></i></a>
-                    <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
-                    <a href="#" class="social-link"><i class="fab fa-instagram"></i></a>
-                    <a href="#" class="social-link"><i class="fab fa-linkedin-in"></i></a>
-                </div>
-            </div>
-        </div>
-    </footer>
+    <div class="navbar-backdrop" id="navbar-backdrop"></div>
 
     <script src="{% static 'js/main.js' %}"></script>
     {% block extra_js %}{% endblock %}

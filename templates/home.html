@@ -1,0 +1,364 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Home | SociSphere{% endblock %}
+
+{% block content %}
+<div class="layout-with-sidebar">
+    <!-- Sidebar -->
+    <aside class="layout-sidebar">
+        <div class="p-4">
+            <nav class="mb-6">
+                <ul class="mb-4">
+                    <li class="mb-2">
+                        <a href="/" class="navbar-link navbar-link-icon active py-3">
+                            <i class="fas fa-home"></i>
+                            <span>Home</span>
+                        </a>
+                    </li>
+                    <li class="mb-2">
+                        <a href="/explore" class="navbar-link navbar-link-icon py-3">
+                            <i class="fas fa-compass"></i>
+                            <span>Explore</span>
+                        </a>
+                    </li>
+                    <li class="mb-2">
+                        <a href="/bookmarks" class="navbar-link navbar-link-icon py-3">
+                            <i class="fas fa-bookmark"></i>
+                            <span>Bookmarks</span>
+                        </a>
+                    </li>
+                    <li class="mb-2">
+                        <a href="/profile" class="navbar-link navbar-link-icon py-3">
+                            <i class="fas fa-user"></i>
+                            <span>Profile</span>
+                        </a>
+                    </li>
+                </ul>
+                
+                <button class="btn btn-primary btn-lg btn-block">
+                    <i class="fas fa-plus"></i> Create Post
+                </button>
+            </nav>
+            
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3 class="text-lg font-semibold">Trending Topics</h3>
+                </div>
+                <div class="card-body p-0">
+                    <ul>
+                        <li class="p-3 border-b">
+                            <a href="/topic/technology" class="text-primary font-medium">#Technology</a>
+                            <div class="text-sm text-tertiary">2.5k posts</div>
+                        </li>
+                        <li class="p-3 border-b">
+                            <a href="/topic/sports" class="text-primary font-medium">#Sports</a>
+                            <div class="text-sm text-tertiary">1.8k posts</div>
+                        </li>
+                        <li class="p-3 border-b">
+                            <a href="/topic/food" class="text-primary font-medium">#Food</a>
+                            <div class="text-sm text-tertiary">1.2k posts</div>
+                        </li>
+                        <li class="p-3">
+                            <a href="/topic/travel" class="text-primary font-medium">#Travel</a>
+                            <div class="text-sm text-tertiary">980 posts</div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="text-lg font-semibold">Suggested Users</h3>
+                </div>
+                <div class="card-body p-0">
+                    <ul>
+                        <li class="p-3 border-b">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center">
+                                    <img src="{% static 'img/profiles/user1.jpg' %}" alt="User" class="w-10 h-10 rounded-full mr-3">
+                                    <div>
+                                        <div class="font-medium">Jane Smith</div>
+                                        <div class="text-sm text-tertiary">@janesmith</div>
+                                    </div>
+                                </div>
+                                <button class="btn btn-sm btn-outline-primary">Follow</button>
+                            </div>
+                        </li>
+                        <li class="p-3 border-b">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center">
+                                    <img src="{% static 'img/profiles/user2.jpg' %}" alt="User" class="w-10 h-10 rounded-full mr-3">
+                                    <div>
+                                        <div class="font-medium">John Doe</div>
+                                        <div class="text-sm text-tertiary">@johndoe</div>
+                                    </div>
+                                </div>
+                                <button class="btn btn-sm btn-outline-primary">Follow</button>
+                            </div>
+                        </li>
+                        <li class="p-3">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center">
+                                    <img src="{% static 'img/profiles/user3.jpg' %}" alt="User" class="w-10 h-10 rounded-full mr-3">
+                                    <div>
+                                        <div class="font-medium">Lisa Johnson</div>
+                                        <div class="text-sm text-tertiary">@lisaj</div>
+                                    </div>
+                                </div>
+                                <button class="btn btn-sm btn-outline-primary">Follow</button>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="layout-content">
+        <!-- Feed Filters -->
+        <div class="feed-filters">
+            <button class="feed-filter active">For You</button>
+            <button class="feed-filter">Following</button>
+            <button class="feed-filter">Latest</button>
+            <button class="feed-filter">Popular</button>
+            <button class="feed-filter">Trending</button>
+        </div>
+        
+        <!-- Compose Post -->
+        <div class="feed-compose">
+            <div class="feed-compose-header">
+                <div class="feed-compose-avatar">
+                    <img src="{% static 'img/default-avatar.svg' %}" alt="User" id="compose-user-avatar">
+                </div>
+                <textarea class="feed-compose-input" placeholder="What's on your mind?" id="compose-text"></textarea>
+            </div>
+            <div class="feed-compose-actions">
+                <div class="feed-compose-tools">
+                    <button class="feed-compose-tool" title="Add Photo">
+                        <i class="fas fa-image"></i>
+                    </button>
+                    <button class="feed-compose-tool" title="Add Video">
+                        <i class="fas fa-video"></i>
+                    </button>
+                    <button class="feed-compose-tool" title="Add Poll">
+                        <i class="fas fa-poll"></i>
+                    </button>
+                    <button class="feed-compose-tool" title="Add Emoji">
+                        <i class="fas fa-smile"></i>
+                    </button>
+                </div>
+                <button class="feed-compose-submit" disabled id="compose-submit">Post</button>
+            </div>
+        </div>
+        
+        <!-- Feed Posts -->
+        <div class="feed-container" id="feed-container">
+            <!-- Sample Post 1 -->
+            <div class="post">
+                <div class="post-header">
+                    <div class="post-avatar">
+                        <img src="{% static 'img/profiles/user1.jpg' %}" alt="Jane Smith">
+                    </div>
+                    <div class="post-user-info">
+                        <h3 class="post-username">Jane Smith</h3>
+                        <div class="post-meta">
+                            <span class="post-time">2 hours ago</span>
+                            <span class="post-visibility">
+                                <i class="fas fa-globe-americas"></i> Public
+                            </span>
+                        </div>
+                    </div>
+                    <div class="post-options">
+                        <button class="post-options-btn">
+                            <i class="fas fa-ellipsis-h"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="post-content">
+                    <div class="post-text">
+                        Just finished my morning hike and the view was amazing! Nature always has a way of clearing your mind. 🌄 #Hiking #Nature #MorningVibes
+                    </div>
+                    <div class="post-media">
+                        <img src="{% static 'img/posts/nature.jpg' %}" alt="Nature view">
+                    </div>
+                </div>
+                <div class="post-stats">
+                    <div class="post-stat">
+                        <span class="post-stat-count">42</span> Likes
+                    </div>
+                    <div class="post-stat">
+                        <span class="post-stat-count">8</span> Comments
+                    </div>
+                    <div class="post-stat">
+                        <span class="post-stat-count">3</span> Shares
+                    </div>
+                </div>
+                <div class="post-actions">
+                    <button class="post-action-btn">
+                        <i class="far fa-heart"></i> Like
+                    </button>
+                    <button class="post-action-btn">
+                        <i class="far fa-comment"></i> Comment
+                    </button>
+                    <button class="post-action-btn">
+                        <i class="far fa-share-square"></i> Share
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Sample Post 2 -->
+            <div class="post">
+                <div class="post-header">
+                    <div class="post-avatar">
+                        <img src="{% static 'img/profiles/user2.jpg' %}" alt="John Doe">
+                    </div>
+                    <div class="post-user-info">
+                        <h3 class="post-username">John Doe</h3>
+                        <div class="post-meta">
+                            <span class="post-time">Yesterday</span>
+                            <span class="post-visibility">
+                                <i class="fas fa-globe-americas"></i> Public
+                            </span>
+                        </div>
+                    </div>
+                    <div class="post-options">
+                        <button class="post-options-btn">
+                            <i class="fas fa-ellipsis-h"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="post-content">
+                    <div class="post-text">
+                        Just launched my new website! 🚀 Check it out and let me know what you think. It's been a labor of love for the past few months and I'm excited to finally share it with everyone.
+                        
+                        <a href="https://example.com" target="_blank">https://example.com</a>
+                    </div>
+                </div>
+                <div class="post-stats">
+                    <div class="post-stat">
+                        <span class="post-stat-count">87</span> Likes
+                    </div>
+                    <div class="post-stat">
+                        <span class="post-stat-count">23</span> Comments
+                    </div>
+                    <div class="post-stat">
+                        <span class="post-stat-count">12</span> Shares
+                    </div>
+                </div>
+                <div class="post-actions">
+                    <button class="post-action-btn">
+                        <i class="far fa-heart"></i> Like
+                    </button>
+                    <button class="post-action-btn">
+                        <i class="far fa-comment"></i> Comment
+                    </button>
+                    <button class="post-action-btn">
+                        <i class="far fa-share-square"></i> Share
+                    </button>
+                </div>
+                <div class="post-comments">
+                    <div class="post-comments-header">
+                        <h4 class="post-comments-title">Comments</h4>
+                        <button class="post-comments-toggle">Hide</button>
+                    </div>
+                    <div class="post-comments-list">
+                        <div class="post-comment">
+                            <div class="post-comment-avatar">
+                                <img src="{% static 'img/profiles/user3.jpg' %}" alt="Lisa Johnson">
+                            </div>
+                            <div class="post-comment-content">
+                                <div class="post-comment-header">
+                                    <span class="post-comment-author">Lisa Johnson</span>
+                                    <span class="post-comment-time">4 hours ago</span>
+                                </div>
+                                <div class="post-comment-text">Congratulations! The site looks amazing!</div>
+                                <div class="post-comment-actions">
+                                    <span class="post-comment-action">Like</span>
+                                    <span class="post-comment-action">Reply</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="post-comment">
+                            <div class="post-comment-avatar">
+                                <img src="{% static 'img/profiles/user4.jpg' %}" alt="Mark Wilson">
+                            </div>
+                            <div class="post-comment-content">
+                                <div class="post-comment-header">
+                                    <span class="post-comment-author">Mark Wilson</span>
+                                    <span class="post-comment-time">2 hours ago</span>
+                                </div>
+                                <div class="post-comment-text">Great job! Love the design and user experience.</div>
+                                <div class="post-comment-actions">
+                                    <span class="post-comment-action">Like</span>
+                                    <span class="post-comment-action">Reply</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="post-comment-form">
+                        <div class="post-comment-form-avatar">
+                            <img src="{% static 'img/default-avatar.svg' %}" alt="Current User">
+                        </div>
+                        <div class="post-comment-form-input">
+                            <textarea placeholder="Write a comment..."></textarea>
+                            <button class="post-comment-form-submit" disabled>
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Load More -->
+            <div class="feed-load-more">
+                <button class="feed-load-more-btn" id="load-more-btn">Load More</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Enable/disable post submit button based on text
+    const composeText = document.getElementById('compose-text');
+    const composeSubmit = document.getElementById('compose-submit');
+    
+    if (composeText && composeSubmit) {
+        composeText.addEventListener('input', function() {
+            composeSubmit.disabled = this.value.trim().length === 0;
+        });
+    }
+    
+    // Handle post comment form
+    const commentForms = document.querySelectorAll('.post-comment-form-input textarea');
+    commentForms.forEach(form => {
+        const submitBtn = form.closest('.post-comment-form-input').querySelector('.post-comment-form-submit');
+        
+        form.addEventListener('input', function() {
+            submitBtn.disabled = this.value.trim().length === 0;
+        });
+    });
+    
+    // Simulate post like functionality
+    const likeButtons = document.querySelectorAll('.post-action-btn:nth-child(1)');
+    likeButtons.forEach(btn => {
+        btn.addEventListener('click', function() {
+            const icon = this.querySelector('i');
+            if (icon.classList.contains('far')) {
+                icon.classList.remove('far');
+                icon.classList.add('fas');
+                this.classList.add('liked');
+            } else {
+                icon.classList.remove('fas');
+                icon.classList.add('far');
+                this.classList.remove('liked');
+            }
+        });
+    });
+});
+</script>
+{% endblock %} 
