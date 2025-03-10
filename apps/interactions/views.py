@@ -305,10 +305,20 @@ class NotificationViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        """Return the current user's notifications."""
-        return Notification.objects.filter(
+        """Return the current user's notifications, filtered if requested."""
+        queryset = Notification.objects.filter(
             recipient=self.request.user
-        ).order_by('-created_at')
+        )
+        
+        # Apply filtering if requested
+        filter_param = self.request.query_params.get('filter', None)
+        if filter_param:
+            if filter_param == 'read':
+                queryset = queryset.filter(is_read=True)
+            elif filter_param == 'unread':
+                queryset = queryset.filter(is_read=False)
+        
+        return queryset.order_by('-created_at')
 
     @action(detail=True, methods=['post'])
     def mark_read(self, request, pk=None):

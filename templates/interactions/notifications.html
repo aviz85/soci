@@ -110,7 +110,7 @@
     async function loadUnreadNotifications() {
         try {
             const token = localStorage.getItem('access_token');
-            const response = await fetch('http://localhost:8080/api/interactions/notifications/?unread=true', {
+            const response = await fetch('http://localhost:8080/api/interactions/notifications/?filter=unread', {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -213,7 +213,7 @@
     async function markNotificationAsRead(notificationId) {
         try {
             const token = localStorage.getItem('access_token');
-            const response = await fetch(`http://localhost:8080/api/interactions/notifications/${notificationId}/read/`, {
+            const response = await fetch(`http://localhost:8080/api/interactions/notifications/${notificationId}/mark_read/`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -303,7 +303,7 @@
         // It needs to be implemented in conjunction with the header's notification badge
         const notificationBadge = document.querySelector('#notification-badge');
         if (notificationBadge) {
-            fetch('http://localhost:8080/api/interactions/notifications/?unread=true', {
+            fetch('http://localhost:8080/api/interactions/notifications/?filter=unread', {
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('access_token')}`
                 }

@@ -33,8 +33,8 @@ class TestNotificationCreationServices:
         """Create a post for testing."""
         user1, _ = users
         return Post.objects.create(
-            author=user1,
-            content="Test post content"
+            user=user1,
+            body="Test post content"
         )
     
     def test_follow_notification_creation(self, users):
@@ -86,8 +86,8 @@ class TestNotificationCreationServices:
         
         # Create a post with mention
         post = Post.objects.create(
-            author=user1,
-            content=f"Hello @{user2.username} this is a mention test"
+            user=user1,
+            body=f"Hello @{user2.username} this is a mention test"
         )
         
         # Check if notification was created

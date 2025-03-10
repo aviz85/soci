@@ -15,6 +15,7 @@ urlpatterns = [
     path('conversations/<int:conversation_id>/messages/', views.ConversationMessagesView.as_view(), name='conversation-messages'),
     path('conversations/<int:conversation_id>/read/', views.MarkConversationReadView.as_view(), name='mark-conversation-read'),
     path('notifications/read-all/', views.MarkAllNotificationsReadView.as_view(), name='mark-all-notifications-read'),
+    path('notifications/read_all/', views.MarkAllNotificationsReadView.as_view(), name='mark-all-notifications-read-underscore'),
 ]
 
 urlpatterns += router.urls 
