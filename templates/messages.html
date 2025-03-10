@@ -4,5 +4,349 @@
 {% block title %}Messages | SociSphere{% endblock %}
 
 {% block content %}
-  <!-- Rest of the template content remains unchanged -->
+<div class="layout-with-sidebar">
+    <!-- Sidebar -->
+    <aside class="layout-sidebar">
+        <div class="p-4">
+            <nav class="mb-6">
+                <ul class="mb-4">
+                    <li class="mb-2">
+                        <a href="/" class="navbar-link navbar-link-icon py-3">
+                            <i class="fas fa-home"></i>
+                            <span>Home</span>
+                        </a>
+                    </li>
+                    <li class="mb-2">
+                        <a href="/explore" class="navbar-link navbar-link-icon py-3">
+                            <i class="fas fa-compass"></i>
+                            <span>Explore</span>
+                        </a>
+                    </li>
+                    <li class="mb-2">
+                        <a href="/messages" class="navbar-link navbar-link-icon active py-3">
+                            <i class="fas fa-envelope"></i>
+                            <span>Messages</span>
+                        </a>
+                    </li>
+                    <li class="mb-2">
+                        <a href="/notifications" class="navbar-link navbar-link-icon py-3">
+                            <i class="fas fa-bell"></i>
+                            <span>Notifications</span>
+                        </a>
+                    </li>
+                    <li class="mb-2">
+                        <a href="/bookmarks" class="navbar-link navbar-link-icon py-3">
+                            <i class="fas fa-bookmark"></i>
+                            <span>Bookmarks</span>
+                        </a>
+                    </li>
+                    <li class="mb-2">
+                        <a href="/profile" class="navbar-link navbar-link-icon py-3">
+                            <i class="fas fa-user"></i>
+                            <span>Profile</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="layout-content">
+        <div class="messages-container">
+            <!-- Conversations List -->
+            <div class="conversations-panel">
+                <div class="card mb-0 h-full">
+                    <div class="card-header flex justify-between items-center">
+                        <h1 class="text-xl font-semibold">Messages</h1>
+                        <div>
+                            <button id="new-message" class="btn btn-sm btn-primary">
+                                <i class="fas fa-pencil-alt mr-2"></i> New Message
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="card-body p-0">
+                        <!-- Search for conversations -->
+                        <div class="search-input-container p-3 border-b">
+                            <div class="search-input-wrapper">
+                                <i class="fas fa-search"></i>
+                                <input type="text" id="conversation-search" placeholder="Search messages...">
+                            </div>
+                        </div>
+                        
+                        <!-- Conversations list -->
+                        <div id="conversations-list">
+                            <!-- Loading state -->
+                            <div class="text-center p-6" id="loading-conversations">
+                                <div class="loading-spinner mb-3"></div>
+                                <p class="text-secondary">Loading conversations...</p>
+                            </div>
+                            
+                            <!-- Empty state -->
+                            <div class="hidden" id="empty-conversations">
+                                <div class="text-center p-12">
+                                    <div class="text-6xl text-gray-300 mb-4">
+                                        <i class="fas fa-inbox"></i>
+                                    </div>
+                                    <h3 class="text-xl font-semibold mb-2">No messages yet</h3>
+                                    <p class="text-gray-500 mb-4">You don't have any messages at the moment.</p>
+                                    <button class="btn btn-primary" id="start-conversation">
+                                        <i class="fas fa-users mr-2"></i> Find People to Message
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- Conversation Items -->
+                            <div class="hidden" id="conversations-items">
+                                <!-- Sample conversation items that will be replaced by dynamic content -->
+                                <div class="conversation-item p-4 border-b hover:bg-gray-50 cursor-pointer transition-colors unread" data-conversation-id="1">
+                                    <div class="flex">
+                                        <div class="conversation-avatar mr-3">
+                                            <img src="{% static 'img/default-avatar.svg' %}" alt="User" class="w-10 h-10 rounded-full">
+                                        </div>
+                                        <div class="conversation-content flex-1">
+                                            <div class="flex justify-between items-center">
+                                                <span class="font-semibold">Jane Smith</span>
+                                                <span class="text-xs text-tertiary">10:30 AM</span>
+                                            </div>
+                                            <div class="conversation-preview flex items-center mt-1">
+                                                <span class="text-sm text-tertiary truncate">Hey, how are you doing today? I wanted to ask about...</span>
+                                                <span class="ml-2 w-2 h-2 bg-primary rounded-full"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="conversation-item p-4 border-b hover:bg-gray-50 cursor-pointer transition-colors" data-conversation-id="2">
+                                    <div class="flex">
+                                        <div class="conversation-avatar mr-3">
+                                            <img src="{% static 'img/default-avatar.svg' %}" alt="User" class="w-10 h-10 rounded-full">
+                                        </div>
+                                        <div class="conversation-content flex-1">
+                                            <div class="flex justify-between items-center">
+                                                <span class="font-semibold">John Doe</span>
+                                                <span class="text-xs text-tertiary">Yesterday</span>
+                                            </div>
+                                            <div class="conversation-preview mt-1">
+                                                <span class="text-sm text-tertiary truncate">Thanks for the information. I'll check it out!</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Chat Panel -->
+            <div class="chat-panel">
+                <!-- Empty State -->
+                <div class="flex flex-col items-center justify-center h-full" id="empty-chat">
+                    <div class="text-6xl text-gray-300 mb-4">
+                        <i class="fas fa-comments"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">Select a conversation</h3>
+                    <p class="text-gray-500">Choose a conversation from the list or start a new one</p>
+                </div>
+                
+                <!-- Active Chat -->
+                <div class="card mb-0 h-full hidden" id="active-chat">
+                    <!-- Chat Header -->
+                    <div class="card-header flex justify-between items-center border-b">
+                        <div class="flex items-center">
+                            <img src="{% static 'img/default-avatar.svg' %}" alt="User" class="w-10 h-10 rounded-full mr-3" id="chat-user-avatar">
+                            <div>
+                                <h2 class="font-semibold" id="chat-user-name">User Name</h2>
+                                <span class="text-xs text-tertiary" id="chat-user-status">Online</span>
+                            </div>
+                        </div>
+                        <div>
+                            <button class="btn-icon btn-sm text-tertiary hover:text-primary" title="Video Call">
+                                <i class="fas fa-video"></i>
+                            </button>
+                            <button class="btn-icon btn-sm text-tertiary hover:text-primary" title="Call">
+                                <i class="fas fa-phone"></i>
+                            </button>
+                            <div class="navbar-dropdown ml-2 inline-block">
+                                <button class="btn-icon btn-sm text-tertiary hover:text-primary navbar-dropdown-toggle">
+                                    <i class="fas fa-ellipsis-v"></i>
+                                </button>
+                                <div class="navbar-dropdown-menu">
+                                    <button class="navbar-dropdown-item">
+                                        <i class="fas fa-user mr-2"></i> View Profile
+                                    </button>
+                                    <button class="navbar-dropdown-item">
+                                        <i class="fas fa-bell-slash mr-2"></i> Mute Notifications
+                                    </button>
+                                    <button class="navbar-dropdown-item">
+                                        <i class="fas fa-search mr-2"></i> Search in Conversation
+                                    </button>
+                                    <div class="navbar-dropdown-divider"></div>
+                                    <button class="navbar-dropdown-item text-danger">
+                                        <i class="fas fa-trash-alt mr-2"></i> Delete Conversation
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Chat Messages -->
+                    <div class="chat-messages" id="chat-messages">
+                        <div class="text-center p-3 text-tertiary">
+                            <span class="text-xs bg-gray-100 rounded-full px-3 py-1">Today</span>
+                        </div>
+                        
+                        <!-- Sample messages that will be replaced by dynamic content -->
+                        <div class="message-item received">
+                            <div class="message-avatar">
+                                <img src="{% static 'img/default-avatar.svg' %}" alt="User" class="w-8 h-8 rounded-full">
+                            </div>
+                            <div class="message-content">
+                                <div class="message-bubble">
+                                    <p>Hey there! How are you doing today?</p>
+                                </div>
+                                <div class="message-meta">
+                                    <span class="text-xs text-tertiary">10:30 AM</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="message-item sent">
+                            <div class="message-content">
+                                <div class="message-bubble">
+                                    <p>I'm doing great, thanks for asking! How about you?</p>
+                                </div>
+                                <div class="message-meta">
+                                    <span class="text-xs text-tertiary">10:32 AM</span>
+                                    <span class="ml-2"><i class="fas fa-check-double text-primary"></i></span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="message-item received">
+                            <div class="message-avatar">
+                                <img src="{% static 'img/default-avatar.svg' %}" alt="User" class="w-8 h-8 rounded-full">
+                            </div>
+                            <div class="message-content">
+                                <div class="message-bubble">
+                                    <p>I'm doing well too! I wanted to ask if you're free this weekend for the event we talked about.</p>
+                                </div>
+                                <div class="message-meta">
+                                    <span class="text-xs text-tertiary">10:33 AM</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Chat Input -->
+                    <div class="chat-input-container p-3 border-t">
+                        <div class="flex items-center">
+                            <button class="btn-icon btn-sm text-tertiary hover:text-primary mr-2" title="Attach File">
+                                <i class="fas fa-paperclip"></i>
+                            </button>
+                            <button class="btn-icon btn-sm text-tertiary hover:text-primary mr-2" title="Insert Emoji">
+                                <i class="fas fa-smile"></i>
+                            </button>
+                            <div class="flex-1 relative">
+                                <textarea id="message-input" class="w-full rounded-full px-4 py-2 border focus:outline-none focus:border-primary" rows="1" placeholder="Type a message..."></textarea>
+                            </div>
+                            <button class="btn-icon btn-primary rounded-full ml-2 p-2" id="send-message" title="Send Message">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Demo functionality for showing conversation
+        const conversationItems = document.querySelectorAll('.conversation-item');
+        const emptyChat = document.getElementById('empty-chat');
+        const activeChat = document.getElementById('active-chat');
+        
+        conversationItems.forEach(item => {
+            item.addEventListener('click', function() {
+                // Update active state
+                conversationItems.forEach(i => i.classList.remove('active-conversation'));
+                this.classList.add('active-conversation');
+                this.classList.remove('unread');
+                
+                // Get conversation details
+                const username = this.querySelector('.font-semibold').textContent;
+                const chatUserName = document.getElementById('chat-user-name');
+                
+                if (chatUserName) {
+                    chatUserName.textContent = username;
+                }
+                
+                // Show chat
+                emptyChat.classList.add('hidden');
+                activeChat.classList.remove('hidden');
+                
+                // Remove unread indicator
+                this.querySelector('.bg-primary')?.remove();
+            });
+        });
+        
+        // Demo send message functionality
+        const messageInput = document.getElementById('message-input');
+        const sendButton = document.getElementById('send-message');
+        const chatMessages = document.getElementById('chat-messages');
+        
+        function sendMessage() {
+            const message = messageInput.value.trim();
+            if (!message) return;
+            
+            const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            
+            const messageHTML = `
+                <div class="message-item sent">
+                    <div class="message-content">
+                        <div class="message-bubble">
+                            <p>${message}</p>
+                        </div>
+                        <div class="message-meta">
+                            <span class="text-xs text-tertiary">${time}</span>
+                            <span class="ml-2"><i class="fas fa-check text-tertiary"></i></span>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            chatMessages.insertAdjacentHTML('beforeend', messageHTML);
+            
+            // Clear input and scroll to bottom
+            messageInput.value = '';
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            
+            // Focus back on input
+            messageInput.focus();
+        }
+        
+        if (sendButton && messageInput) {
+            sendButton.addEventListener('click', sendMessage);
+            
+            messageInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                }
+            });
+            
+            // Auto-resize textarea
+            messageInput.addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = (this.scrollHeight) + 'px';
+            });
+        }
+    });
+</script>
 {% endblock %} 

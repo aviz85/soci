@@ -12,74 +12,87 @@
 </head>
 <body>
     <div class="layout-wrapper">
-        <header class="layout-header navbar navbar-sticky navbar-shadow">
+        <!-- Main Navigation -->
+        <header class="main-header">
             <div class="container">
-                <div class="navbar-section">
-                    <a href="/" class="navbar-brand">SociSphere</a>
-                    <div class="navbar-search">
-                        <i class="fas fa-search navbar-search-icon"></i>
-                        <input type="text" id="global-search" class="navbar-search-input form-control" placeholder="Search for people, communities, or posts...">
+                <!-- Logo & Search -->
+                <div class="header-left">
+                    <a href="/" class="logo">SociSphere</a>
+                    <div class="search-wrapper">
+                        <i class="fas fa-search search-icon"></i>
+                        <input type="text" id="global-search" class="search-input" placeholder="Search SociSphere...">
                     </div>
                 </div>
-                
-                <button class="navbar-toggler" id="navbar-toggler">
+
+                <!-- Mobile menu toggle -->
+                <button class="mobile-toggle" id="navbar-toggler">
                     <i class="fas fa-bars"></i>
                 </button>
                 
-                <div class="navbar-collapse" id="navbar-main">
-                    <ul class="navbar-nav">
-                        <li class="navbar-item">
-                            <a href="/" class="navbar-link navbar-link-icon {% if request.path == '/' %}active{% endif %}">
+                <!-- Main navigation links -->
+                <nav class="main-nav" id="navbar-main">
+                    <ul class="nav-list">
+                        <li class="nav-item">
+                            <a href="/" class="nav-link {% if request.path == '/' %}active{% endif %}">
                                 <i class="fas fa-home"></i>
                                 <span>Home</span>
                             </a>
                         </li>
-                        <li class="navbar-item">
-                            <a href="/communities" class="navbar-link navbar-link-icon {% if request.path == '/communities' %}active{% endif %}">
+                        <li class="nav-item">
+                            <a href="/communities" class="nav-link {% if request.path == '/communities' %}active{% endif %}">
                                 <i class="fas fa-users"></i>
                                 <span>Communities</span>
                             </a>
                         </li>
-                        <li class="navbar-item">
-                            <a href="/messages" class="navbar-link navbar-link-icon {% if request.path == '/messages' %}active{% endif %}">
+                        <li class="nav-item">
+                            <a href="/messages" class="nav-link {% if request.path == '/messages' %}active{% endif %}">
                                 <i class="fas fa-envelope"></i>
                                 <span>Messages</span>
                                 <span class="badge hidden" id="message-badge">0</span>
                             </a>
                         </li>
-                        <li class="navbar-item">
-                            <a href="/notifications" class="navbar-link navbar-link-icon {% if request.path == '/notifications' %}active{% endif %}">
+                        <li class="nav-item">
+                            <a href="/notifications" class="nav-link {% if request.path == '/notifications' %}active{% endif %}">
                                 <i class="fas fa-bell"></i>
                                 <span>Notifications</span>
                                 <span class="badge hidden" id="notification-badge">0</span>
                             </a>
                         </li>
                     </ul>
-                </div>
+                </nav>
                 
-                <div class="navbar-section">
-                    <div class="navbar-user" id="logged-in-menu">
-                        <div class="navbar-dropdown">
-                            <button class="navbar-dropdown-toggle">
-                                <img src="{% static 'img/default-avatar.svg' %}" alt="User" class="navbar-user-avatar" id="header-user-avatar">
-                                <span id="header-username">User</span>
+                <!-- User area -->
+                <div class="header-right">
+                    <!-- Logged in state -->
+                    <div class="user-menu" id="logged-in-menu">
+                        <div class="user-dropdown">
+                            <button class="user-trigger">
+                                <img src="{% static 'img/default-avatar.svg' %}" alt="User" class="user-avatar" id="header-user-avatar">
+                                <span class="user-display-name" id="header-username">User</span>
+                                <i class="fas fa-angle-down"></i>
                             </button>
-                            <div class="navbar-dropdown-menu">
-                                <a href="/profile" class="navbar-dropdown-item">
-                                    <i class="fas fa-user"></i> Profile
+                            
+                            <div class="user-dropdown-menu">
+                                <a href="/profile" class="dropdown-item">
+                                    <i class="fas fa-user"></i>
+                                    <span>Profile</span>
                                 </a>
-                                <a href="/settings" class="navbar-dropdown-item">
-                                    <i class="fas fa-cog"></i> Settings
+                                <a href="/settings" class="dropdown-item">
+                                    <i class="fas fa-cog"></i>
+                                    <span>Settings</span>
                                 </a>
-                                <div class="navbar-dropdown-divider"></div>
-                                <a href="#" class="navbar-dropdown-item" id="logout-button">
-                                    <i class="fas fa-sign-out-alt"></i> Logout
+                                <div class="dropdown-divider"></div>
+                                <a href="#" class="dropdown-item" id="logout-button">
+                                    <i class="fas fa-sign-out-alt"></i>
+                                    <span>Logout</span>
                                 </a>
                             </div>
                         </div>
                     </div>
-                    <div class="auth-buttons hidden" id="logged-out-menu">
-                        <a href="/login" class="btn btn-outline-primary">Log In</a>
+                    
+                    <!-- Logged out state -->
+                    <div class="login-buttons hidden" id="logged-out-menu">
+                        <a href="/login" class="btn btn-outline">Log In</a>
                         <a href="/register" class="btn btn-primary">Sign Up</a>
                     </div>
                 </div>
@@ -88,30 +101,32 @@
 
         <div class="search-overlay hidden" id="search-overlay">
             <div class="container">
-                <div class="card p-4">
-                    <div class="flex justify-between items-center mb-4">
-                        <h2 class="text-xl font-semibold">Search SociSphere</h2>
-                        <button class="btn-icon" id="close-search">
+                <div class="search-card">
+                    <div class="search-header">
+                        <h2>Search SociSphere</h2>
+                        <button class="close-button" id="close-search">
                             <i class="fas fa-times"></i>
                         </button>
                     </div>
-                    <div class="form-group relative mb-4">
-                        <i class="fas fa-search absolute left-3 top-3 text-gray-500"></i>
-                        <input type="text" id="overlay-search-input" class="form-control pl-8" placeholder="Search for people, communities, or posts...">
-                    </div>
-                    <div class="flex mb-4 gap-2">
-                        <button class="btn btn-sm active" data-tab="all">All</button>
-                        <button class="btn btn-sm btn-outline-primary" data-tab="people">People</button>
-                        <button class="btn btn-sm btn-outline-primary" data-tab="communities">Communities</button>
-                        <button class="btn btn-sm btn-outline-primary" data-tab="posts">Posts</button>
-                    </div>
-                    <div id="search-results">
-                        <div class="search-loading hidden flex flex-col items-center justify-center p-6">
-                            <div class="loading-spinner mb-2"></div>
-                            <p class="text-secondary">Searching...</p>
+                    <div class="search-form">
+                        <div class="search-input-wrapper">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="overlay-search-input" placeholder="Search for people, communities, or posts...">
                         </div>
-                        <div class="empty-search-message text-center p-6">
-                            <p class="text-gray-500">Start typing to search SociSphere</p>
+                    </div>
+                    <div class="search-tabs">
+                        <button class="search-tab active" data-tab="all">All</button>
+                        <button class="search-tab" data-tab="people">People</button>
+                        <button class="search-tab" data-tab="communities">Communities</button>
+                        <button class="search-tab" data-tab="posts">Posts</button>
+                    </div>
+                    <div class="search-results" id="search-results">
+                        <div class="search-loading hidden">
+                            <div class="loading-spinner"></div>
+                            <p>Searching...</p>
+                        </div>
+                        <div class="search-empty">
+                            <p>Start typing to search SociSphere</p>
                         </div>
                         <div class="search-results-list hidden" id="search-results-list"></div>
                     </div>
@@ -119,7 +134,7 @@
             </div>
         </div>
 
-        <main class="layout-main">
+        <main class="main-content">
             {% block content %}{% endblock %}
         </main>
 

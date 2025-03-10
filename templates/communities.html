@@ -1,0 +1,474 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Communities | SociSphere{% endblock %}
+
+{% block content %}
+<div class="layout-with-sidebar">
+    <!-- Sidebar -->
+    <aside class="layout-sidebar">
+        <div class="p-4">
+            <nav class="mb-6">
+                <ul class="mb-4">
+                    <li class="mb-2">
+                        <a href="/" class="navbar-link navbar-link-icon py-3">
+                            <i class="fas fa-home"></i>
+                            <span>Home</span>
+                        </a>
+                    </li>
+                    <li class="mb-2">
+                        <a href="/explore" class="navbar-link navbar-link-icon py-3">
+                            <i class="fas fa-compass"></i>
+                            <span>Explore</span>
+                        </a>
+                    </li>
+                    <li class="mb-2">
+                        <a href="/messages" class="navbar-link navbar-link-icon py-3">
+                            <i class="fas fa-envelope"></i>
+                            <span>Messages</span>
+                        </a>
+                    </li>
+                    <li class="mb-2">
+                        <a href="/notifications" class="navbar-link navbar-link-icon py-3">
+                            <i class="fas fa-bell"></i>
+                            <span>Notifications</span>
+                        </a>
+                    </li>
+                    <li class="mb-2">
+                        <a href="/communities" class="navbar-link navbar-link-icon active py-3">
+                            <i class="fas fa-users"></i>
+                            <span>Communities</span>
+                        </a>
+                    </li>
+                    <li class="mb-2">
+                        <a href="/bookmarks" class="navbar-link navbar-link-icon py-3">
+                            <i class="fas fa-bookmark"></i>
+                            <span>Bookmarks</span>
+                        </a>
+                    </li>
+                    <li class="mb-2">
+                        <a href="/profile" class="navbar-link navbar-link-icon py-3">
+                            <i class="fas fa-user"></i>
+                            <span>Profile</span>
+                        </a>
+                    </li>
+                </ul>
+                
+                <button class="btn btn-primary btn-block mb-4" id="create-community-btn">
+                    <i class="fas fa-plus mr-2"></i> Create Community
+                </button>
+            </nav>
+            
+            <div class="communities-nav">
+                <h3 class="text-lg font-semibold mb-3">Your Communities</h3>
+                <ul class="mb-4" id="your-communities-list">
+                    <li class="community-item mb-2 py-2 active">
+                        <a href="#" class="community-link flex items-center">
+                            <div class="community-icon">
+                                <img src="{% static 'img/default-avatar.svg' %}" alt="Community" class="w-8 h-8 rounded-full">
+                            </div>
+                            <div class="community-name">Technology Hub</div>
+                        </a>
+                    </li>
+                    <li class="community-item mb-2 py-2">
+                        <a href="#" class="community-link flex items-center">
+                            <div class="community-icon">
+                                <img src="{% static 'img/default-avatar.svg' %}" alt="Community" class="w-8 h-8 rounded-full">
+                            </div>
+                            <div class="community-name">Design Enthusiasts</div>
+                        </a>
+                    </li>
+                    <li class="community-item mb-2 py-2">
+                        <a href="#" class="community-link flex items-center">
+                            <div class="community-icon">
+                                <img src="{% static 'img/default-avatar.svg' %}" alt="Community" class="w-8 h-8 rounded-full">
+                            </div>
+                            <div class="community-name">Travel Adventures</div>
+                        </a>
+                    </li>
+                </ul>
+                
+                <h3 class="text-lg font-semibold mb-3">Discover</h3>
+                <ul class="mb-4" id="discover-communities-list">
+                    <li class="community-item mb-2 py-2">
+                        <a href="#" class="community-link flex items-center">
+                            <div class="community-icon">
+                                <img src="{% static 'img/default-avatar.svg' %}" alt="Community" class="w-8 h-8 rounded-full">
+                            </div>
+                            <div class="community-name">Photography</div>
+                        </a>
+                    </li>
+                    <li class="community-item mb-2 py-2">
+                        <a href="#" class="community-link flex items-center">
+                            <div class="community-icon">
+                                <img src="{% static 'img/default-avatar.svg' %}" alt="Community" class="w-8 h-8 rounded-full">
+                            </div>
+                            <div class="community-name">Cooking Club</div>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="layout-content">
+        <div class="communities-container">
+            <!-- Community Header -->
+            <div class="community-header card mb-4">
+                <div class="community-cover">
+                    <img src="{% static 'img/cover-placeholder.jpg' %}" alt="Community cover" class="w-full h-48 object-cover">
+                </div>
+                <div class="community-header-content p-4">
+                    <div class="flex items-start">
+                        <div class="community-avatar">
+                            <img src="{% static 'img/default-avatar.svg' %}" alt="Community" class="w-24 h-24 rounded-full border-4 border-white -mt-12">
+                        </div>
+                        <div class="flex-1 ml-4">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h1 class="text-2xl font-bold">Technology Hub</h1>
+                                    <p class="text-tertiary mb-2">@techhub • 12.5k members</p>
+                                    <p class="mb-4">A community for tech enthusiasts to discuss the latest trends, share knowledge, and connect with like-minded individuals.</p>
+                                </div>
+                                <div>
+                                    <button class="btn btn-primary">
+                                        <i class="fas fa-user-check mr-2"></i> Joined
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="community-stats flex">
+                                <div class="stat mr-6">
+                                    <span class="font-semibold">12.5k</span>
+                                    <span class="text-tertiary text-sm">Members</span>
+                                </div>
+                                <div class="stat mr-6">
+                                    <span class="font-semibold">452</span>
+                                    <span class="text-tertiary text-sm">Online</span>
+                                </div>
+                                <div class="stat">
+                                    <span class="font-semibold">2.3k</span>
+                                    <span class="text-tertiary text-sm">Posts</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="community-tabs border-t">
+                    <ul class="flex">
+                        <li>
+                            <a href="#" class="community-tab-link active">
+                                <i class="fas fa-stream mr-2"></i> Feed
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="community-tab-link">
+                                <i class="fas fa-user-friends mr-2"></i> Members
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="community-tab-link">
+                                <i class="fas fa-info-circle mr-2"></i> About
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="community-tab-link">
+                                <i class="fas fa-calendar mr-2"></i> Events
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="community-tab-link">
+                                <i class="fas fa-cog mr-2"></i> Settings
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Feed Content -->
+            <div class="community-feed">
+                <div class="grid grid-cols-3 gap-4">
+                    <!-- Left Column: Post Feed -->
+                    <div class="col-span-2">
+                        <!-- Create Post -->
+                        <div class="card mb-4">
+                            <div class="card-body">
+                                <div class="create-post-header flex items-center mb-3">
+                                    <img src="{% static 'img/default-avatar.svg' %}" alt="Your avatar" class="w-10 h-10 rounded-full mr-3">
+                                    <input type="text" class="form-control flex-1" placeholder="Share something with the community...">
+                                </div>
+                                <div class="create-post-actions flex justify-between">
+                                    <div>
+                                        <button class="btn-icon mr-2" title="Add Image">
+                                            <i class="fas fa-image text-tertiary"></i>
+                                        </button>
+                                        <button class="btn-icon mr-2" title="Add Poll">
+                                            <i class="fas fa-poll-h text-tertiary"></i>
+                                        </button>
+                                        <button class="btn-icon" title="Add Event">
+                                            <i class="fas fa-calendar-plus text-tertiary"></i>
+                                        </button>
+                                    </div>
+                                    <button class="btn btn-primary btn-sm">Post</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Posts -->
+                        <div class="posts-container">
+                            <!-- Post 1 -->
+                            <div class="card mb-4">
+                                <div class="card-body">
+                                    <div class="post-header flex items-start mb-3">
+                                        <img src="{% static 'img/default-avatar.svg' %}" alt="User" class="w-10 h-10 rounded-full mr-3">
+                                        <div class="flex-1">
+                                            <div class="flex items-center">
+                                                <span class="font-semibold mr-2">John Doe</span>
+                                                <span class="text-tertiary text-sm">@johndoe</span>
+                                                <span class="text-tertiary text-sm mx-2">•</span>
+                                                <span class="text-tertiary text-sm">2 hours ago</span>
+                                            </div>
+                                            <div class="text-tertiary text-sm">Posted in <a href="#" class="text-primary">Technology Hub</a></div>
+                                        </div>
+                                        <div class="navbar-dropdown">
+                                            <button class="btn-icon navbar-dropdown-toggle">
+                                                <i class="fas fa-ellipsis-h text-tertiary"></i>
+                                            </button>
+                                            <div class="navbar-dropdown-menu">
+                                                <button class="navbar-dropdown-item">
+                                                    <i class="fas fa-bookmark mr-2"></i> Save Post
+                                                </button>
+                                                <button class="navbar-dropdown-item">
+                                                    <i class="fas fa-bell-slash mr-2"></i> Mute Posts
+                                                </button>
+                                                <button class="navbar-dropdown-item">
+                                                    <i class="fas fa-flag mr-2"></i> Report Post
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="post-content mb-3">
+                                        <p class="mb-3">Just found this awesome new VS Code extension that helps with code optimization. Has anyone else tried it?</p>
+                                        <img src="{% static 'img/post-image-placeholder.jpg' %}" alt="Post image" class="w-full rounded-lg mb-3">
+                                    </div>
+                                    <div class="post-actions flex items-center justify-between border-t border-b py-2 mb-3">
+                                        <button class="post-action flex items-center">
+                                            <i class="far fa-heart mr-1"></i>
+                                            <span>42 Likes</span>
+                                        </button>
+                                        <button class="post-action flex items-center">
+                                            <i class="far fa-comment mr-1"></i>
+                                            <span>12 Comments</span>
+                                        </button>
+                                        <button class="post-action flex items-center">
+                                            <i class="far fa-share-square mr-1"></i>
+                                            <span>Share</span>
+                                        </button>
+                                    </div>
+                                    <div class="post-comments">
+                                        <div class="flex items-start mb-3">
+                                            <img src="{% static 'img/default-avatar.svg' %}" alt="Your avatar" class="w-8 h-8 rounded-full mr-2">
+                                            <div class="flex-1 relative">
+                                                <input type="text" class="form-control w-full" placeholder="Write a comment...">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Post 2 -->
+                            <div class="card mb-4">
+                                <div class="card-body">
+                                    <div class="post-header flex items-start mb-3">
+                                        <img src="{% static 'img/default-avatar.svg' %}" alt="User" class="w-10 h-10 rounded-full mr-3">
+                                        <div class="flex-1">
+                                            <div class="flex items-center">
+                                                <span class="font-semibold mr-2">Sarah Johnson</span>
+                                                <span class="text-tertiary text-sm">@sarahj</span>
+                                                <span class="text-tertiary text-sm mx-2">•</span>
+                                                <span class="text-tertiary text-sm">Yesterday</span>
+                                            </div>
+                                            <div class="text-tertiary text-sm">Posted in <a href="#" class="text-primary">Technology Hub</a></div>
+                                        </div>
+                                        <div class="navbar-dropdown">
+                                            <button class="btn-icon navbar-dropdown-toggle">
+                                                <i class="fas fa-ellipsis-h text-tertiary"></i>
+                                            </button>
+                                            <div class="navbar-dropdown-menu">
+                                                <button class="navbar-dropdown-item">
+                                                    <i class="fas fa-bookmark mr-2"></i> Save Post
+                                                </button>
+                                                <button class="navbar-dropdown-item">
+                                                    <i class="fas fa-bell-slash mr-2"></i> Mute Posts
+                                                </button>
+                                                <button class="navbar-dropdown-item">
+                                                    <i class="fas fa-flag mr-2"></i> Report Post
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="post-content mb-3">
+                                        <p>What do you all think about the new AI advancements? Are they going to revolutionize the tech industry or is it just hype?</p>
+                                    </div>
+                                    <div class="post-actions flex items-center justify-between border-t border-b py-2 mb-3">
+                                        <button class="post-action flex items-center">
+                                            <i class="far fa-heart mr-1"></i>
+                                            <span>76 Likes</span>
+                                        </button>
+                                        <button class="post-action flex items-center">
+                                            <i class="far fa-comment mr-1"></i>
+                                            <span>32 Comments</span>
+                                        </button>
+                                        <button class="post-action flex items-center">
+                                            <i class="far fa-share-square mr-1"></i>
+                                            <span>Share</span>
+                                        </button>
+                                    </div>
+                                    <div class="post-comments">
+                                        <div class="flex items-start mb-3">
+                                            <img src="{% static 'img/default-avatar.svg' %}" alt="Your avatar" class="w-8 h-8 rounded-full mr-2">
+                                            <div class="flex-1 relative">
+                                                <input type="text" class="form-control w-full" placeholder="Write a comment...">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Right Column: Community Info -->
+                    <div class="col-span-1">
+                        <!-- About Card -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h3 class="text-lg font-semibold">About Community</h3>
+                            </div>
+                            <div class="card-body">
+                                <p class="mb-4">A community for tech enthusiasts to discuss the latest trends, share knowledge, and connect with like-minded individuals.</p>
+                                <div class="mb-3">
+                                    <div class="text-tertiary text-sm mb-1">Created</div>
+                                    <div>March 15, 2022</div>
+                                </div>
+                                <div class="mb-3">
+                                    <div class="text-tertiary text-sm mb-1">Moderators</div>
+                                    <div class="flex items-center">
+                                        <img src="{% static 'img/default-avatar.svg' %}" alt="Moderator" class="w-6 h-6 rounded-full mr-1">
+                                        <img src="{% static 'img/default-avatar.svg' %}" alt="Moderator" class="w-6 h-6 rounded-full mr-1">
+                                        <span class="text-primary text-sm">View All</span>
+                                    </div>
+                                </div>
+                                <button class="btn btn-outline-primary btn-block">
+                                    <i class="fas fa-share-alt mr-2"></i> Share Community
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Rules Card -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h3 class="text-lg font-semibold">Community Rules</h3>
+                            </div>
+                            <div class="card-body p-0">
+                                <ul class="rules-list">
+                                    <li class="p-3 border-b">
+                                        <div class="font-semibold mb-1">1. Be respectful</div>
+                                        <p class="text-sm text-tertiary">Treat others with respect and kindness.</p>
+                                    </li>
+                                    <li class="p-3 border-b">
+                                        <div class="font-semibold mb-1">2. No spam</div>
+                                        <p class="text-sm text-tertiary">Avoid repetitive or irrelevant content.</p>
+                                    </li>
+                                    <li class="p-3">
+                                        <div class="font-semibold mb-1">3. Stay on topic</div>
+                                        <p class="text-sm text-tertiary">Keep discussions relevant to technology.</p>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <!-- Upcoming Events -->
+                        <div class="card">
+                            <div class="card-header flex justify-between items-center">
+                                <h3 class="text-lg font-semibold">Upcoming Events</h3>
+                                <a href="#" class="text-primary text-sm">View All</a>
+                            </div>
+                            <div class="card-body p-0">
+                                <div class="event p-3 border-b">
+                                    <div class="flex">
+                                        <div class="event-date bg-primary text-white rounded p-2 mr-3 text-center">
+                                            <div class="text-sm font-semibold">OCT</div>
+                                            <div class="text-xl font-bold">12</div>
+                                        </div>
+                                        <div class="event-details">
+                                            <div class="event-title font-semibold">Tech Meetup: AI in 2023</div>
+                                            <div class="event-time text-tertiary text-sm mb-1">
+                                                <i class="far fa-clock mr-1"></i> 6:00 PM - 8:00 PM
+                                            </div>
+                                            <div class="event-location text-tertiary text-sm">
+                                                <i class="fas fa-map-marker-alt mr-1"></i> Virtual Event
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="event p-3">
+                                    <div class="flex">
+                                        <div class="event-date bg-primary text-white rounded p-2 mr-3 text-center">
+                                            <div class="text-sm font-semibold">NOV</div>
+                                            <div class="text-xl font-bold">05</div>
+                                        </div>
+                                        <div class="event-details">
+                                            <div class="event-title font-semibold">Code Challenge: Hackathon</div>
+                                            <div class="event-time text-tertiary text-sm mb-1">
+                                                <i class="far fa-clock mr-1"></i> 10:00 AM - 4:00 PM
+                                            </div>
+                                            <div class="event-location text-tertiary text-sm">
+                                                <i class="fas fa-map-marker-alt mr-1"></i> Tech Hub Office
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Community tab switching
+        const tabLinks = document.querySelectorAll('.community-tab-link');
+        
+        tabLinks.forEach(tab => {
+            tab.addEventListener('click', function(e) {
+                e.preventDefault();
+                tabLinks.forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+        
+        // Post interaction demos
+        const likeButtons = document.querySelectorAll('.post-action:nth-child(1)');
+        
+        likeButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const icon = this.querySelector('i');
+                if (icon.classList.contains('far')) {
+                    icon.classList.remove('far');
+                    icon.classList.add('fas');
+                    icon.classList.add('text-danger');
+                } else {
+                    icon.classList.remove('fas');
+                    icon.classList.remove('text-danger');
+                    icon.classList.add('far');
+                }
+            });
+        });
+    });
+</script>
+{% endblock %} 
