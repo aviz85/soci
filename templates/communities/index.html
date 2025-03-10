@@ -335,9 +335,9 @@ function renderCommunity(community, container) {
     
     card.innerHTML = `
         <div class="community-card-header">
-            <img src="${community.banner || '/static/img/default-banner.png'}" alt="${community.name}" class="community-cover">
+            <img src="${community.banner || '/static/img/default-cover.svg'}" alt="${community.name}" class="community-cover">
             <div class="community-icon-wrapper">
-                <img src="${community.icon || '/static/img/default-community.png'}" alt="${community.name}" class="community-icon">
+                <img src="${community.icon || '/static/img/default-community.svg'}" alt="${community.name}" class="community-icon">
             </div>
         </div>
         <div class="community-body">

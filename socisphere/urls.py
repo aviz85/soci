@@ -18,6 +18,11 @@ from django.contrib import admin
 from django.urls import path, include, re_path
 from django.conf import settings
 from django.conf.urls.static import static
+from django.shortcuts import render
+from django.template import Template, Context
+from django.template.loader import get_template
+from django.http import HttpResponse
+from django.views.generic import TemplateView
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
@@ -41,6 +46,31 @@ schema_view = get_schema_view(
     permission_classes=(permissions.AllowAny,),
 )
 
+# Frontend view functions
+def home_view(request):
+    try:
+        template = get_template('index.html')
+        context = {'request': request, 'STATIC_URL': settings.STATIC_URL}
+        html = template.render(context)
+        return HttpResponse(html)
+    except Exception as e:
+        return HttpResponse(f"Error rendering template: {str(e)}")
+
+def login_view(request):
+    return render(request, 'auth/login.html')
+
+def register_view(request):
+    return render(request, 'auth/register.html')
+
+def profile_view(request):
+    return render(request, 'profile/index.html')
+
+def messages_view(request):
+    return render(request, 'interactions/messages.html')
+
+def communities_view(request):
+    return render(request, 'communities/index.html')
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     
@@ -59,8 +89,17 @@ urlpatterns = [
     re_path(r'^swagger(?P<format>\.json|\.yaml)$', schema_view.without_ui(cache_timeout=0), name='schema-json'),
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
+    
+    # Frontend views
+    path('', home_view, name='home'),
+    path('login/', login_view, name='login'),
+    path('register/', register_view, name='register'),
+    path('profile/', profile_view, name='profile'),
+    path('messages/', messages_view, name='messages'),
+    path('communities/', communities_view, name='communities'),
 ]
 
 # Serve media files in development
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
