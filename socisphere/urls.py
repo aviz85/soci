@@ -71,6 +71,9 @@ def messages_view(request):
 def communities_view(request):
     return render(request, 'communities/index.html')
 
+def notifications_view(request):
+    return render(request, 'notifications.html')
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     
@@ -97,6 +100,7 @@ urlpatterns = [
     path('profile/', profile_view, name='profile'),
     path('messages/', messages_view, name='messages'),
     path('communities/', communities_view, name='communities'),
+    path('notifications/', notifications_view, name='notifications'),
 ]
 
 # Serve media files in development

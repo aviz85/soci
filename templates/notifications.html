@@ -1,0 +1,219 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Notifications | SociSphere{% endblock %}
+
+{% block content %}
+<div class="layout-with-sidebar">
+    <!-- Sidebar -->
+    <aside class="layout-sidebar">
+        <div class="p-4">
+            <nav class="mb-6">
+                <ul class="mb-4">
+                    <li class="mb-2">
+                        <a href="/" class="navbar-link navbar-link-icon py-3">
+                            <i class="fas fa-home"></i>
+                            <span>Home</span>
+                        </a>
+                    </li>
+                    <li class="mb-2">
+                        <a href="/explore" class="navbar-link navbar-link-icon py-3">
+                            <i class="fas fa-compass"></i>
+                            <span>Explore</span>
+                        </a>
+                    </li>
+                    <li class="mb-2">
+                        <a href="/messages" class="navbar-link navbar-link-icon py-3">
+                            <i class="fas fa-envelope"></i>
+                            <span>Messages</span>
+                        </a>
+                    </li>
+                    <li class="mb-2">
+                        <a href="/notifications" class="navbar-link navbar-link-icon active py-3">
+                            <i class="fas fa-bell"></i>
+                            <span>Notifications</span>
+                        </a>
+                    </li>
+                    <li class="mb-2">
+                        <a href="/bookmarks" class="navbar-link navbar-link-icon py-3">
+                            <i class="fas fa-bookmark"></i>
+                            <span>Bookmarks</span>
+                        </a>
+                    </li>
+                    <li class="mb-2">
+                        <a href="/profile" class="navbar-link navbar-link-icon py-3">
+                            <i class="fas fa-user"></i>
+                            <span>Profile</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="layout-content">
+        <div class="card mb-4">
+            <div class="card-header flex justify-between items-center">
+                <h1 class="text-xl font-semibold">Notifications</h1>
+                <div>
+                    <button id="mark-all-read" class="btn btn-sm btn-outline-primary">
+                        <i class="fas fa-check-double mr-2"></i> Mark all as read
+                    </button>
+                    <div class="navbar-dropdown ml-2 inline-block">
+                        <button class="btn btn-sm btn-icon navbar-dropdown-toggle">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                        <div class="navbar-dropdown-menu">
+                            <button class="navbar-dropdown-item" id="filter-all">
+                                <i class="fas fa-globe mr-2"></i> All notifications
+                            </button>
+                            <button class="navbar-dropdown-item" id="filter-unread">
+                                <i class="fas fa-envelope mr-2"></i> Unread only
+                            </button>
+                            <button class="navbar-dropdown-item" id="filter-mentions">
+                                <i class="fas fa-at mr-2"></i> Mentions
+                            </button>
+                            <button class="navbar-dropdown-item" id="filter-likes">
+                                <i class="fas fa-heart mr-2"></i> Likes
+                            </button>
+                            <button class="navbar-dropdown-item" id="filter-comments">
+                                <i class="fas fa-comment mr-2"></i> Comments
+                            </button>
+                            <button class="navbar-dropdown-item" id="filter-follows">
+                                <i class="fas fa-user-plus mr-2"></i> Follows
+                            </button>
+                            <div class="navbar-dropdown-divider"></div>
+                            <button class="navbar-dropdown-item text-danger" id="clear-all">
+                                <i class="fas fa-trash-alt mr-2"></i> Clear all notifications
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="notifications-container">
+                <!-- Notifications will be loaded here -->
+                <div class="text-center p-6" id="loading-notifications">
+                    <div class="loading-spinner mb-3"></div>
+                    <p class="text-secondary">Loading notifications...</p>
+                </div>
+                
+                <div class="hidden" id="empty-notifications">
+                    <div class="text-center p-12">
+                        <div class="text-6xl text-gray-300 mb-4">
+                            <i class="fas fa-bell-slash"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-2">No notifications yet</h3>
+                        <p class="text-gray-500 mb-4">You don't have any notifications at the moment.</p>
+                        <a href="/" class="btn btn-primary">
+                            <i class="fas fa-home mr-2"></i> Go to Home
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="hidden" id="notifications-list">
+                    <!-- Sample notifications that will be replaced by dynamic content -->
+                    <div class="notification-item p-4 border-b hover:bg-gray-50 cursor-pointer transition-colors unread">
+                        <div class="flex">
+                            <div class="notification-avatar mr-3">
+                                <img src="{% static 'img/profiles/user1.jpg' %}" alt="User" class="w-10 h-10 rounded-full">
+                            </div>
+                            <div class="notification-content flex-1">
+                                <div class="notification-text">
+                                    <span class="font-semibold">Jane Smith</span> liked your post: "Just finished my morning hike and the view was amazing!"
+                                </div>
+                                <div class="notification-meta flex items-center mt-1">
+                                    <span class="text-sm text-tertiary mr-3">2 hours ago</span>
+                                    <span class="notification-type text-xs bg-primary text-white rounded-full px-2 py-1">Like</span>
+                                </div>
+                            </div>
+                            <div class="notification-actions flex items-start">
+                                <button class="btn-icon btn-sm text-tertiary hover:text-primary mark-read-btn" title="Mark as read">
+                                    <i class="fas fa-check"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="notification-item p-4 border-b hover:bg-gray-50 cursor-pointer transition-colors">
+                        <div class="flex">
+                            <div class="notification-avatar mr-3">
+                                <img src="{% static 'img/profiles/user2.jpg' %}" alt="User" class="w-10 h-10 rounded-full">
+                            </div>
+                            <div class="notification-content flex-1">
+                                <div class="notification-text">
+                                    <span class="font-semibold">John Doe</span> commented on your post: "Great photo! Where was this taken?"
+                                </div>
+                                <div class="notification-meta flex items-center mt-1">
+                                    <span class="text-sm text-tertiary mr-3">Yesterday</span>
+                                    <span class="notification-type text-xs bg-secondary text-white rounded-full px-2 py-1">Comment</span>
+                                </div>
+                            </div>
+                            <div class="notification-actions flex items-start">
+                                <button class="btn-icon btn-sm text-tertiary hover:text-primary mark-read-btn" title="Mark as read">
+                                    <i class="fas fa-check"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="notification-item p-4 border-b hover:bg-gray-50 cursor-pointer transition-colors">
+                        <div class="flex">
+                            <div class="notification-avatar mr-3">
+                                <img src="{% static 'img/profiles/user3.jpg' %}" alt="User" class="w-10 h-10 rounded-full">
+                            </div>
+                            <div class="notification-content flex-1">
+                                <div class="notification-text">
+                                    <span class="font-semibold">Lisa Johnson</span> started following you
+                                </div>
+                                <div class="notification-meta flex items-center mt-1">
+                                    <span class="text-sm text-tertiary mr-3">2 days ago</span>
+                                    <span class="notification-type text-xs bg-accent text-white rounded-full px-2 py-1">Follow</span>
+                                </div>
+                            </div>
+                            <div class="notification-actions flex items-start">
+                                <button class="btn-icon btn-sm text-tertiary hover:text-primary mark-read-btn" title="Mark as read">
+                                    <i class="fas fa-check"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="notification-item p-4 border-b hover:bg-gray-50 cursor-pointer transition-colors">
+                        <div class="flex">
+                            <div class="notification-avatar mr-3">
+                                <div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white">
+                                    <i class="fas fa-users"></i>
+                                </div>
+                            </div>
+                            <div class="notification-content flex-1">
+                                <div class="notification-text">
+                                    You were added to the community <span class="font-semibold">Photography Enthusiasts</span>
+                                </div>
+                                <div class="notification-meta flex items-center mt-1">
+                                    <span class="text-sm text-tertiary mr-3">5 days ago</span>
+                                    <span class="notification-type text-xs bg-success text-white rounded-full px-2 py-1">Community</span>
+                                </div>
+                            </div>
+                            <div class="notification-actions flex items-start">
+                                <button class="btn-icon btn-sm text-tertiary hover:text-primary mark-read-btn" title="Mark as read">
+                                    <i class="fas fa-check"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="p-4 text-center hidden" id="load-more-container">
+                    <button class="btn btn-outline-primary" id="load-more-btn">Load More</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- The notifications.js file will handle all notification functionality -->
+<script src="{% static 'js/notifications.js' %}"></script>
+{% endblock %} 
