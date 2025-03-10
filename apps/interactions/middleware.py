@@ -16,6 +16,10 @@ class NotificationMiddleware:
         """Process the request and add notification data to response context."""
         response = self.get_response(request)
         
+        # Skip for AJAX requests
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return response
+        
         # For non-template responses, we need to add context_data
         if not hasattr(response, 'context_data'):
             response.context_data = {}
@@ -31,6 +35,10 @@ class NotificationMiddleware:
     
     def process_template_response(self, request, response):
         """Add notification data to template responses."""
+        # Skip for AJAX requests
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return response
+            
         # Add unread notification count to the context for authenticated users
         if hasattr(request, 'user') and request.user.is_authenticated:
             response.context_data['unread_notifications_count'] = Notification.objects.filter(

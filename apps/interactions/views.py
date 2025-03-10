@@ -102,6 +102,10 @@ class ConversationViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         """Return conversations the current user is participating in."""
+        # Handle swagger schema generation
+        if getattr(self, 'swagger_fake_view', False):
+            return Conversation.objects.none()
+        
         return Conversation.objects.filter(
             participants=self.request.user
         ).order_by('-updated_at')
@@ -263,14 +267,6 @@ class FollowUserView(APIView):
             followed=user_to_follow
         )
         
-        # Create a notification for the followed user
-        Notification.objects.create(
-            recipient=user_to_follow,
-            notification_type='follow',
-            title='New Follower',
-            message=f"{request.user.username} started following you."
-        )
-        
         serializer = ConnectionSerializer(connection)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
@@ -306,6 +302,10 @@ class NotificationViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         """Return the current user's notifications, filtered if requested."""
+        # Handle swagger schema generation
+        if getattr(self, 'swagger_fake_view', False):
+            return Notification.objects.none()
+            
         queryset = Notification.objects.filter(
             recipient=self.request.user
         )
@@ -358,11 +358,14 @@ class CollaborativeSpaceViewSet(viewsets.ModelViewSet):
     search_fields = ['name', 'description']
 
     def get_queryset(self):
-        """Return spaces the user is a member of or public spaces."""
-        user = self.request.user
+        """Return spaces the current user is a member of."""
+        # Handle swagger schema generation
+        if getattr(self, 'swagger_fake_view', False):
+            return CollaborativeSpace.objects.none()
+            
         return CollaborativeSpace.objects.filter(
-            Q(members=user) | Q(is_public=True)
-        ).distinct().order_by('-updated_at')
+            Q(members=self.request.user) | Q(is_public=True)
+        ).distinct()
 
     def perform_create(self, serializer):
         """Create a new space and add the current user as creator and member."""

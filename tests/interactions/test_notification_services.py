@@ -2,6 +2,7 @@ import pytest
 from django.utils import timezone
 from django.contrib.auth import get_user_model
 from unittest.mock import patch, MagicMock
+from django.contrib.contenttypes.models import ContentType
 
 from apps.interactions.models import Notification, Connection
 from apps.content.models import Post, Comment
@@ -63,15 +64,17 @@ class TestNotificationCreationServices:
         user1, user2 = users
         
         # Create a comment
+        content_type = ContentType.objects.get_for_model(Post)
         comment = Comment.objects.create(
-            author=user2,
-            post=post,
-            content="This is a test comment"
+            user=user2,
+            content_type=content_type,
+            object_id=post.id,
+            body="This is a test comment"
         )
         
         # Check if notification was created
         notifications = Notification.objects.filter(
-            recipient=user1,  # post author
+            recipient=user1,
             notification_type='comment'
         )
         assert notifications.exists()

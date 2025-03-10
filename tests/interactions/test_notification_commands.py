@@ -93,14 +93,14 @@ class TestNotificationManagementCommands:
         # Set current time
         mock_now.return_value = make_aware(datetime(2023, 1, 1, 12, 0, 0))
         
-        # Set some notifications to specific times (2 days old)
-        two_days_ago = mock_now.return_value - timezone.timedelta(days=2)
-        Notification.objects.filter(title__startswith="Recent").update(
-            created_at=two_days_ago,
+        # Set some notifications to be 3 days old
+        three_days_ago = mock_now.return_value - timezone.timedelta(days=3)
+        Notification.objects.filter(title__startswith="Recent Notification").update(
+            created_at=three_days_ago,
             is_read=False
         )
         
-        # Call the command
+        # Call the command with 2 days cutoff
         out = StringIO()
         call_command('send_notification_reminders', days=2, stdout=out)
         

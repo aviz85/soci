@@ -3,6 +3,8 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 from apps.users.models import User
 
@@ -189,4 +191,71 @@ class SavedContent(models.Model):
         unique_together = ('user', 'content_type', 'object_id')
     
     def __str__(self):
-        return f"{self.user.username} saved {self.content_object}" 
+        return f"{self.user.username} saved {self.content_object}"
+
+
+# Signal handlers
+
+@receiver(post_save, sender=Comment)
+def create_comment_notification(sender, instance, created, **kwargs):
+    """Create a notification when a user comments on content."""
+    if created and not instance.is_deleted:
+        content_object = instance.content_object
+        
+        # Only notify if the content object has a user attribute (like Post)
+        if hasattr(content_object, 'user') and content_object.user != instance.user:
+            from apps.interactions.models import Notification
+            
+            Notification.objects.create(
+                recipient=content_object.user,
+                notification_type='comment',
+                title='New Comment',
+                message=f"{instance.user.username} commented on your post: {content_object.title if hasattr(content_object, 'title') and content_object.title else content_object.body[:50]}"
+            )
+
+@receiver(post_save, sender=Post)
+def create_mention_notification(sender, instance, created, **kwargs):
+    """Create a notification when a user is mentioned in a post."""
+    if created and hasattr(instance, 'body'):
+        # Extract usernames mentioned with @
+        import re
+        mentioned_usernames = re.findall(r'@(\w+)', instance.body)
+        
+        if mentioned_usernames:
+            # Get unique usernames
+            mentioned_usernames = set(mentioned_usernames)
+            
+            # Get users that match the usernames
+            from apps.users.models import User
+            mentioned_users = User.objects.filter(username__in=mentioned_usernames)
+            
+            # Create notification for each mentioned user
+            from apps.interactions.models import Notification
+            for user in mentioned_users:
+                # Don't notify the author
+                if user != instance.user:
+                    Notification.objects.create(
+                        recipient=user,
+                        notification_type='mention',
+                        title='You were mentioned',
+                        message=f"{instance.user.username} mentioned you in a post."
+                    )
+
+@receiver(post_save, sender=Reaction)
+def create_reaction_notification(sender, instance, created, **kwargs):
+    """Create a notification when a user reacts to content."""
+    if created and instance.reaction_type == 'like':
+        content_object = instance.content_object
+        
+        # Only notify if the content object has a user attribute and it's not the same user
+        if hasattr(content_object, 'user') and content_object.user != instance.user:
+            from apps.interactions.models import Notification
+            
+            title = content_object.title if hasattr(content_object, 'title') and content_object.title else content_object.body[:50]
+            
+            Notification.objects.create(
+                recipient=content_object.user,
+                notification_type='like',
+                title='New Like',
+                message=f"{instance.user.username} liked your post: {title}"
+            ) 

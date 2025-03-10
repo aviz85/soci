@@ -1,5 +1,10 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.utils import timezone
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 from apps.users.models import User
 
@@ -258,4 +263,18 @@ class SpaceMembership(models.Model):
         unique_together = ('user', 'space')
     
     def __str__(self):
-        return f"{self.user.username} as {self.role} in {self.space.name}" 
+        return f"{self.user.username} as {self.role} in {self.space.name}"
+
+
+# Signal handlers
+
+@receiver(post_save, sender=Connection)
+def create_follow_notification(sender, instance, created, **kwargs):
+    """Create a notification when a user follows another user."""
+    if created:  # Only on new connections, not updates
+        Notification.objects.create(
+            recipient=instance.followed,
+            notification_type='follow',
+            title='New Follower',
+            message=f"{instance.follower.username} started following you."
+        ) 

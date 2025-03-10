@@ -108,6 +108,7 @@ class PostViewSet(viewsets.ModelViewSet):
             object_id=post.id,
             reaction_type=reaction_type
         )
+        
         serializer = ReactionSerializer(reaction)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
@@ -135,11 +136,12 @@ class PostViewSet(viewsets.ModelViewSet):
         
         serializer = CommentSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save(
+            comment = serializer.save(
                 user=request.user,
                 content_type=content_type,
                 object_id=post.id
             )
+            
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

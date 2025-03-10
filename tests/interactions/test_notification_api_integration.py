@@ -3,6 +3,7 @@ from django.urls import reverse
 from rest_framework import status
 from django.utils import timezone
 import json
+from django.contrib.contenttypes.models import ContentType
 
 from apps.interactions.models import Notification, User
 from apps.content.models import Post
@@ -124,9 +125,17 @@ class TestNotificationCreationOnActions:
         """Test that a notification is created when someone comments on a post."""
         api_client.force_authenticate(user=user2)
         
+        # Get content type for Post model
+        content_type_id = ContentType.objects.get_for_model(Post).id
+        
         # User2 comments on User1's post
-        url = reverse('posts-comment', args=[post.id])
-        response = api_client.post(url, {'body': 'This is a test comment'})
+        url = reverse('posts-add-comment', args=[post.id])
+        data = {
+            'body': 'This is a test comment',
+            'content_type': content_type_id,
+            'object_id': post.id,
+        }
+        response = api_client.post(url, data)
         
         assert response.status_code == status.HTTP_201_CREATED
         
@@ -149,7 +158,7 @@ class TestNotificationCreationOnActions:
         url = reverse('follow-user', args=[user1.id])
         response = api_client.post(url)
         
-        assert response.status_code == status.HTTP_201_OK or response.status_code == status.HTTP_201_CREATED
+        assert response.status_code == status.HTTP_201_CREATED
         
         # Check that a notification was created for user1
         notifications = Notification.objects.filter(
