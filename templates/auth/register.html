@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SociSphere - Create Account</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/main.css">
+</head>
+<body class="auth-page">
+    <div class="auth-container">
+        <div class="auth-header">
+            <h1 class="auth-logo">SociSphere</h1>
+            <p class="auth-tagline">Join the community and connect with the world.</p>
+        </div>
+        
+        <div id="register-error" class="alert alert-danger hidden"></div>
+        
+        <form id="register-form" class="auth-form">
+            <div class="form-row">
+                <div class="form-group half">
+                    <label for="first_name" class="form-label">First Name</label>
+                    <input type="text" id="first_name" class="form-control" placeholder="Enter first name" required>
+                </div>
+                
+                <div class="form-group half">
+                    <label for="last_name" class="form-label">Last Name</label>
+                    <input type="text" id="last_name" class="form-control" placeholder="Enter last name" required>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="username" class="form-label">Username</label>
+                <input type="text" id="username" class="form-control" placeholder="Choose a username" required>
+                <small class="form-text">Username must be between 3-20 characters and can only contain letters, numbers, and underscores.</small>
+            </div>
+            
+            <div class="form-group">
+                <label for="email" class="form-label">Email</label>
+                <input type="email" id="email" class="form-control" placeholder="Enter your email" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="password" class="form-label">Password</label>
+                <input type="password" id="password" class="form-control" placeholder="Create a password" required>
+                <div class="password-toggle">
+                    <i class="fas fa-eye" id="toggle-password"></i>
+                </div>
+                <small class="form-text">Password must be at least 8 characters and include at least one letter and one number.</small>
+            </div>
+            
+            <div class="form-group">
+                <label for="password_confirm" class="form-label">Confirm Password</label>
+                <input type="password" id="password_confirm" class="form-control" placeholder="Confirm your password" required>
+            </div>
+            
+            <div class="form-check">
+                <input type="checkbox" id="terms" class="form-check-input" required>
+                <label for="terms" class="form-check-label">I agree to the <a href="/terms" target="_blank">Terms of Service</a> and <a href="/privacy" target="_blank">Privacy Policy</a></label>
+            </div>
+            
+            <button type="submit" class="btn btn-primary btn-block">Create Account</button>
+        </form>
+        
+        <div class="auth-links">
+            <span>Already have an account?</span>
+            <a href="/login" class="auth-link">Login</a>
+        </div>
+    </div>
+    
+    <footer class="auth-footer">
+        <div class="container">
+            <p>&copy; 2025 SociSphere. All rights reserved.</p>
+        </div>
+    </footer>
+    
+    <script src="/static/js/api.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if user is already logged in
+            const accessToken = localStorage.getItem('access_token');
+            if (accessToken) {
+                window.location.href = '/';
+                return;
+            }
+            
+            // Setup form submission
+            const registerForm = document.getElementById('register-form');
+            const errorContainer = document.getElementById('register-error');
+            
+            registerForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Get form values
+                const firstName = document.getElementById('first_name').value.trim();
+                const lastName = document.getElementById('last_name').value.trim();
+                const username = document.getElementById('username').value.trim();
+                const email = document.getElementById('email').value.trim();
+                const password = document.getElementById('password').value;
+                const passwordConfirm = document.getElementById('password_confirm').value;
+                const termsAgreed = document.getElementById('terms').checked;
+                
+                // Validate form
+                if (!firstName || !lastName || !username || !email || !password || !passwordConfirm) {
+                    showError('Please fill out all required fields.');
+                    return;
+                }
+                
+                if (password !== passwordConfirm) {
+                    showError('Passwords do not match.');
+                    return;
+                }
+                
+                if (password.length < 8) {
+                    showError('Password must be at least 8 characters long.');
+                    return;
+                }
+                
+                if (!termsAgreed) {
+                    showError('You must agree to the Terms of Service and Privacy Policy.');
+                    return;
+                }
+                
+                // Validate username format
+                const usernameRegex = /^[a-zA-Z0-9_]{3,20}$/;
+                if (!usernameRegex.test(username)) {
+                    showError('Username must be 3-20 characters and can only contain letters, numbers, and underscores.');
+                    return;
+                }
+                
+                // Validate email format
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(email)) {
+                    showError('Please enter a valid email address.');
+                    return;
+                }
+                
+                // Prepare registration data
+                const userData = {
+                    first_name: firstName,
+                    last_name: lastName,
+                    username: username,
+                    email: email,
+                    password: password,
+                    password_confirm: passwordConfirm
+                };
+                
+                // Disable button and show loading state
+                const submitButton = registerForm.querySelector('button[type="submit"]');
+                const originalText = submitButton.textContent;
+                submitButton.disabled = true;
+                submitButton.textContent = 'Creating Account...';
+                
+                // Call API to register user
+                SociSphereAPI.Auth.register(userData)
+                    .then(data => {
+                        // Registration successful, proceed to login
+                        return SociSphereAPI.Auth.login(username, password);
+                    })
+                    .then(() => {
+                        // Login successful, redirect to home page
+                        window.location.href = '/';
+                    })
+                    .catch(error => {
+                        console.error('Registration error:', error);
+                        
+                        // Handle different error types
+                        if (error.status === 400) {
+                            // Validation error
+                            showError('Registration failed. Please check your information and try again.');
+                        } else {
+                            showError('An error occurred during registration. Please try again later.');
+                        }
+                        
+                        // Reset button
+                        submitButton.disabled = false;
+                        submitButton.textContent = originalText;
+                    });
+            });
+            
+            // Toggle password visibility
+            const togglePassword = document.getElementById('toggle-password');
+            const passwordInput = document.getElementById('password');
+            
+            togglePassword.addEventListener('click', function() {
+                const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                passwordInput.setAttribute('type', type);
+                
+                this.classList.toggle('fa-eye');
+                this.classList.toggle('fa-eye-slash');
+            });
+            
+            // Error message helper
+            function showError(message) {
+                errorContainer.textContent = message;
+                errorContainer.classList.remove('hidden');
+                
+                // Auto-hide after 5 seconds
+                setTimeout(() => {
+                    errorContainer.classList.add('hidden');
+                }, 5000);
+            }
+        });
+    </script>
+</body>
+</html> 

@@ -1,0 +1,554 @@
+{% extends "base.html" %}
+
+{% block title %}Messages{% endblock %}
+
+{% block content %}
+<div class="messages-container">
+    <!-- Conversations List -->
+    <div class="conversations-list">
+        <div class="conversations-header">
+            <h2>Messages</h2>
+            <button class="btn-icon" id="new-message-btn">
+                <i class="fas fa-edit"></i>
+            </button>
+        </div>
+        
+        <div class="conversations-search">
+            <input type="text" id="conversations-search-input" placeholder="Search conversations...">
+        </div>
+        
+        <div id="conversations-list">
+            <div class="loader">
+                <div class="spinner"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Chat Window -->
+    <div class="chat">
+        <div class="empty-chat" id="empty-chat">
+            <div class="empty-chat-icon">
+                <i class="far fa-comments"></i>
+            </div>
+            <h3>Select a conversation</h3>
+            <p>Choose a conversation from the list or start a new one.</p>
+            <button class="btn btn-primary" id="new-conversation-btn">Start a new conversation</button>
+        </div>
+        
+        <div class="chat-content hidden" id="chat-content">
+            <div class="chat-header" id="chat-header">
+                <div class="chat-recipient">
+                    <img src="/static/img/default-avatar.svg" alt="Recipient" id="chat-avatar" class="chat-avatar">
+                    <div class="chat-recipient-info">
+                        <h3 id="chat-name"></h3>
+                        <span id="chat-status" class="chat-status">Online</span>
+                    </div>
+                </div>
+                <div class="chat-actions">
+                    <button class="btn-icon" id="chat-info-btn" title="Conversation Info">
+                        <i class="fas fa-info-circle"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="chat-messages" id="chat-messages"></div>
+            
+            <div class="chat-input-container">
+                <form id="message-form" class="chat-form">
+                    <textarea id="message-input" class="chat-input" placeholder="Type a message..." rows="1"></textarea>
+                    <button type="submit" class="chat-submit">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- New Conversation Modal -->
+<div class="modal" id="new-conversation-modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 class="modal-title">New Conversation</h2>
+            <button class="modal-close">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label for="recipient-search" class="form-label">To:</label>
+                <input type="text" id="recipient-search" class="form-control" placeholder="Search for users...">
+            </div>
+            
+            <div id="recipient-results" class="recipient-results"></div>
+            
+            <div id="selected-recipients" class="selected-recipients"></div>
+            
+            <div class="form-group">
+                <label for="first-message" class="form-label">Message:</label>
+                <textarea id="first-message" class="form-control" rows="3" placeholder="Write your first message..."></textarea>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-outline" id="cancel-conversation-btn">Cancel</button>
+            <button class="btn btn-primary" id="start-conversation-btn">Start Conversation</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize messages page
+    initMessages();
+});
+
+function initMessages() {
+    // Variables to track state
+    let currentConversationId = null;
+    let conversations = [];
+    let selectedRecipients = [];
+    
+    // Elements
+    const conversationsList = document.getElementById('conversations-list');
+    const conversationsSearchInput = document.getElementById('conversations-search-input');
+    const emptyChat = document.getElementById('empty-chat');
+    const chatContent = document.getElementById('chat-content');
+    const chatMessages = document.getElementById('chat-messages');
+    const messageForm = document.getElementById('message-form');
+    const messageInput = document.getElementById('message-input');
+    const chatName = document.getElementById('chat-name');
+    const chatAvatar = document.getElementById('chat-avatar');
+    
+    // Modal elements
+    const newMessageBtn = document.getElementById('new-message-btn');
+    const newConversationBtn = document.getElementById('new-conversation-btn');
+    const newConversationModal = document.getElementById('new-conversation-modal');
+    const modalClose = newConversationModal.querySelector('.modal-close');
+    const cancelConversationBtn = document.getElementById('cancel-conversation-btn');
+    const startConversationBtn = document.getElementById('start-conversation-btn');
+    const recipientSearch = document.getElementById('recipient-search');
+    const recipientResults = document.getElementById('recipient-results');
+    const selectedRecipientsContainer = document.getElementById('selected-recipients');
+    const firstMessage = document.getElementById('first-message');
+    
+    // Load conversations
+    loadConversations();
+    
+    // Event Listeners
+    messageForm.addEventListener('submit', handleSendMessage);
+    newMessageBtn.addEventListener('click', openNewConversationModal);
+    newConversationBtn.addEventListener('click', openNewConversationModal);
+    modalClose.addEventListener('click', closeNewConversationModal);
+    cancelConversationBtn.addEventListener('click', closeNewConversationModal);
+    startConversationBtn.addEventListener('click', handleStartConversation);
+    conversationsSearchInput.addEventListener('input', filterConversations);
+    recipientSearch.addEventListener('input', debounce(searchUsers, 500));
+    
+    // Close modal when clicking outside
+    window.addEventListener('click', (e) => {
+        if (e.target === newConversationModal) {
+            closeNewConversationModal();
+        }
+    });
+    
+    // Functions
+    function loadConversations() {
+        conversationsList.innerHTML = '<div class="loader"><div class="spinner"></div></div>';
+        
+        SociSphereAPI.Interactions.getConversations()
+            .then(data => {
+                conversations = data.results || [];
+                conversationsList.innerHTML = '';
+                
+                if (conversations.length === 0) {
+                    conversationsList.innerHTML = '<div class="empty-state">No conversations yet. Start one!</div>';
+                    return;
+                }
+                
+                conversations.forEach(conversation => {
+                    renderConversationItem(conversation);
+                });
+            })
+            .catch(error => {
+                console.error('Error loading conversations:', error);
+                conversationsList.innerHTML = '<div class="error-state">Failed to load conversations. Please try again.</div>';
+            });
+    }
+    
+    function renderConversationItem(conversation) {
+        const item = document.createElement('div');
+        item.className = 'conversation';
+        item.dataset.id = conversation.id;
+        
+        // Determine other participant or group name
+        let participantName = conversation.name;
+        let participantAvatar = '/static/img/default-group.png';
+        
+        if (!conversation.is_group && conversation.participants && conversation.participants.length > 0) {
+            // Find the other participant (not the current user)
+            const currentUser = JSON.parse(sessionStorage.getItem('current_user'));
+            const otherParticipant = conversation.participants.find(p => p.id !== currentUser.id);
+            
+            if (otherParticipant) {
+                participantName = `${otherParticipant.first_name} ${otherParticipant.last_name}`;
+                participantAvatar = otherParticipant.profile_image || '/static/img/default-avatar.svg';
+            }
+        }
+        
+        const lastMessage = conversation.last_message || 'No messages yet';
+        const unreadClass = conversation.unread_count > 0 ? 'unread' : '';
+        
+        item.innerHTML = `
+            <img src="${participantAvatar}" alt="${participantName}" class="conversation-avatar">
+            <div class="conversation-info">
+                <div class="conversation-name">${participantName}</div>
+                <div class="conversation-last-message ${unreadClass}">${lastMessage}</div>
+            </div>
+            ${conversation.unread_count > 0 ? 
+                `<div class="unread-badge">${conversation.unread_count}</div>` : ''}
+        `;
+        
+        item.addEventListener('click', () => {
+            loadConversation(conversation.id);
+        });
+        
+        conversationsList.appendChild(item);
+    }
+    
+    function loadConversation(conversationId) {
+        // Mark previous conversation items as inactive
+        document.querySelectorAll('.conversation.active').forEach(item => {
+            item.classList.remove('active');
+        });
+        
+        // Mark current conversation as active
+        const conversationItem = document.querySelector(`.conversation[data-id="${conversationId}"]`);
+        if (conversationItem) {
+            conversationItem.classList.add('active');
+            
+            // Remove unread indicator
+            const unreadBadge = conversationItem.querySelector('.unread-badge');
+            if (unreadBadge) {
+                unreadBadge.remove();
+            }
+            
+            const lastMessageElement = conversationItem.querySelector('.conversation-last-message');
+            if (lastMessageElement) {
+                lastMessageElement.classList.remove('unread');
+            }
+        }
+        
+        // Store current conversation ID
+        currentConversationId = conversationId;
+        
+        // Hide empty state and show chat
+        emptyChat.classList.add('hidden');
+        chatContent.classList.remove('hidden');
+        
+        // Show loading state
+        chatMessages.innerHTML = '<div class="loader"><div class="spinner"></div></div>';
+        
+        // Get conversation details and messages
+        const conversation = conversations.find(c => c.id === conversationId);
+        
+        if (conversation) {
+            // Update chat header
+            let participantName = conversation.name;
+            let participantAvatar = '/static/img/default-group.png';
+            
+            if (!conversation.is_group && conversation.participants && conversation.participants.length > 0) {
+                // Find the other participant (not the current user)
+                const currentUser = JSON.parse(sessionStorage.getItem('current_user'));
+                const otherParticipant = conversation.participants.find(p => p.id !== currentUser.id);
+                
+                if (otherParticipant) {
+                    participantName = `${otherParticipant.first_name} ${otherParticipant.last_name}`;
+                    participantAvatar = otherParticipant.profile_image || '/static/img/default-avatar.svg';
+                }
+            }
+            
+            chatName.textContent = participantName;
+            chatAvatar.src = participantAvatar;
+        }
+        
+        // Get messages for this conversation
+        SociSphereAPI.Interactions.getMessages(conversationId)
+            .then(data => {
+                const messages = data.results || [];
+                
+                if (messages.length === 0) {
+                    chatMessages.innerHTML = '<div class="empty-state">No messages yet. Start the conversation!</div>';
+                    return;
+                }
+                
+                chatMessages.innerHTML = '';
+                
+                messages.forEach(message => {
+                    renderMessage(message);
+                });
+                
+                // Scroll to bottom of messages
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+                
+                // Mark conversation as read
+                SociSphereAPI.Interactions.markConversationAsRead(conversationId)
+                    .catch(error => {
+                        console.error('Error marking conversation as read:', error);
+                    });
+            })
+            .catch(error => {
+                console.error('Error loading messages:', error);
+                chatMessages.innerHTML = '<div class="error-state">Failed to load messages. Please try again.</div>';
+            });
+    }
+    
+    function renderMessage(message) {
+        const currentUser = JSON.parse(sessionStorage.getItem('current_user'));
+        const isSent = message.sender.id === currentUser.id;
+        
+        const messageElement = document.createElement('div');
+        messageElement.className = `message ${isSent ? 'message-sent' : 'message-received'}`;
+        
+        const time = new Date(message.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        
+        messageElement.innerHTML = `
+            <div class="message-content">${message.body}</div>
+            <div class="message-time">${time}</div>
+        `;
+        
+        chatMessages.appendChild(messageElement);
+    }
+    
+    function handleSendMessage(e) {
+        e.preventDefault();
+        
+        if (!currentConversationId) {
+            console.error('No active conversation');
+            return;
+        }
+        
+        const messageText = messageInput.value.trim();
+        
+        if (!messageText) {
+            return;
+        }
+        
+        // Disable input while sending
+        messageInput.disabled = true;
+        
+        SociSphereAPI.Interactions.sendMessage(currentConversationId, messageText)
+            .then(message => {
+                // Clear input
+                messageInput.value = '';
+                
+                // Render the new message
+                renderMessage(message);
+                
+                // Scroll to bottom
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+                
+                // Update conversation in the list
+                const conversationItem = document.querySelector(`.conversation[data-id="${currentConversationId}"]`);
+                if (conversationItem) {
+                    const lastMessageElement = conversationItem.querySelector('.conversation-last-message');
+                    if (lastMessageElement) {
+                        lastMessageElement.textContent = messageText;
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error sending message:', error);
+                alert('Failed to send message. Please try again.');
+            })
+            .finally(() => {
+                messageInput.disabled = false;
+                messageInput.focus();
+            });
+    }
+    
+    function openNewConversationModal() {
+        newConversationModal.style.display = 'block';
+        recipientSearch.focus();
+        
+        // Reset fields
+        recipientSearch.value = '';
+        firstMessage.value = '';
+        recipientResults.innerHTML = '';
+        selectedRecipientsContainer.innerHTML = '';
+        selectedRecipients = [];
+    }
+    
+    function closeNewConversationModal() {
+        newConversationModal.style.display = 'none';
+    }
+    
+    function searchUsers() {
+        const query = recipientSearch.value.trim();
+        
+        if (query.length < 2) {
+            recipientResults.innerHTML = '';
+            return;
+        }
+        
+        recipientResults.innerHTML = '<div class="loader"><div class="spinner"></div></div>';
+        
+        SociSphereAPI.Users.searchUsers(query)
+            .then(data => {
+                const users = data.results || [];
+                
+                if (users.length === 0) {
+                    recipientResults.innerHTML = '<div class="empty-state">No users found.</div>';
+                    return;
+                }
+                
+                recipientResults.innerHTML = '';
+                
+                users.forEach(user => {
+                    // Don't show current user
+                    const currentUser = JSON.parse(sessionStorage.getItem('current_user'));
+                    if (user.id === currentUser.id) {
+                        return;
+                    }
+                    
+                    // Don't show already selected users
+                    if (selectedRecipients.some(r => r.id === user.id)) {
+                        return;
+                    }
+                    
+                    const userItem = document.createElement('div');
+                    userItem.className = 'user-result';
+                    userItem.innerHTML = `
+                        <img src="${user.profile_image || '/static/img/default-avatar.svg'}" alt="${user.username}" class="user-result-avatar">
+                        <div class="user-result-info">
+                            <div class="user-result-name">${user.first_name} ${user.last_name}</div>
+                            <div class="user-result-username">@${user.username}</div>
+                        </div>
+                    `;
+                    
+                    userItem.addEventListener('click', () => {
+                        addRecipient(user);
+                        recipientSearch.value = '';
+                        recipientResults.innerHTML = '';
+                    });
+                    
+                    recipientResults.appendChild(userItem);
+                });
+            })
+            .catch(error => {
+                console.error('Error searching users:', error);
+                recipientResults.innerHTML = '<div class="error-state">Failed to search users.</div>';
+            });
+    }
+    
+    function addRecipient(user) {
+        selectedRecipients.push(user);
+        
+        const recipientTag = document.createElement('div');
+        recipientTag.className = 'recipient-tag';
+        recipientTag.dataset.id = user.id;
+        recipientTag.innerHTML = `
+            <span>${user.first_name} ${user.last_name}</span>
+            <button class="recipient-remove" data-id="${user.id}">&times;</button>
+        `;
+        
+        recipientTag.querySelector('.recipient-remove').addEventListener('click', () => {
+            removeRecipient(user.id);
+        });
+        
+        selectedRecipientsContainer.appendChild(recipientTag);
+    }
+    
+    function removeRecipient(userId) {
+        selectedRecipients = selectedRecipients.filter(r => r.id !== userId);
+        
+        const recipientTag = selectedRecipientsContainer.querySelector(`.recipient-tag[data-id="${userId}"]`);
+        if (recipientTag) {
+            selectedRecipientsContainer.removeChild(recipientTag);
+        }
+    }
+    
+    function handleStartConversation() {
+        if (selectedRecipients.length === 0) {
+            alert('Please select at least one recipient.');
+            return;
+        }
+        
+        const message = firstMessage.value.trim();
+        
+        if (!message) {
+            alert('Please enter a message.');
+            return;
+        }
+        
+        startConversationBtn.disabled = true;
+        startConversationBtn.textContent = 'Starting...';
+        
+        // Get participant IDs
+        const participantIds = selectedRecipients.map(user => user.id);
+        
+        // Create new conversation
+        SociSphereAPI.Interactions.createConversation(participantIds)
+            .then(conversation => {
+                // Send initial message
+                return SociSphereAPI.Interactions.sendMessage(conversation.id, message)
+                    .then(() => conversation);
+            })
+            .then(conversation => {
+                // Close modal
+                closeNewConversationModal();
+                
+                // Reload conversations and open the new one
+                loadConversations();
+                
+                // Give a moment for the conversations to load, then open the new one
+                setTimeout(() => {
+                    loadConversation(conversation.id);
+                }, 500);
+            })
+            .catch(error => {
+                console.error('Error starting conversation:', error);
+                alert('Failed to start conversation. Please try again.');
+            })
+            .finally(() => {
+                startConversationBtn.disabled = false;
+                startConversationBtn.textContent = 'Start Conversation';
+            });
+    }
+    
+    function filterConversations() {
+        const query = conversationsSearchInput.value.trim().toLowerCase();
+        
+        if (!query) {
+            // Restore all conversation items
+            document.querySelectorAll('.conversation').forEach(item => {
+                item.style.display = '';
+            });
+            return;
+        }
+        
+        // Filter conversation items
+        document.querySelectorAll('.conversation').forEach(item => {
+            const name = item.querySelector('.conversation-name').textContent.toLowerCase();
+            const message = item.querySelector('.conversation-last-message').textContent.toLowerCase();
+            
+            if (name.includes(query) || message.includes(query)) {
+                item.style.display = '';
+            } else {
+                item.style.display = 'none';
+            }
+        });
+    }
+}
+
+// Utility function to debounce inputs
+function debounce(func, wait) {
+    let timeout;
+    return function() {
+        const context = this;
+        const args = arguments;
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(context, args), wait);
+    };
+}
+</script>
+{% endblock %} 

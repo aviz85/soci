@@ -1,0 +1,454 @@
+{% extends "base.html" %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<div class="container feed-container">
+    <!-- Left Sidebar -->
+    <div class="sidebar left-sidebar">
+        <div class="card user-profile-card">
+            <div class="card-body">
+                <div class="profile-header">
+                    <div class="profile-avatar-container">
+                        <img src="/static/img/default-avatar.svg" alt="Your avatar" id="user-avatar" class="profile-avatar-small">
+                    </div>
+                    <div class="profile-info">
+                        <h3 id="user-name">Loading...</h3>
+                        <p id="user-username" class="text-muted">@loading</p>
+                    </div>
+                </div>
+                <div class="profile-stats">
+                    <div class="stat">
+                        <span class="stat-value" id="post-count">-</span>
+                        <span class="stat-label">Posts</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-value" id="following-count">-</span>
+                        <span class="stat-label">Following</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-value" id="followers-count">-</span>
+                        <span class="stat-label">Followers</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Navigation</h3>
+            </div>
+            <div class="card-body">
+                <ul class="sidebar-nav">
+                    <li class="sidebar-nav-item active">
+                        <a href="/" class="sidebar-nav-link">
+                            <i class="fas fa-home"></i> Home
+                        </a>
+                    </li>
+                    <li class="sidebar-nav-item">
+                        <a href="/explore" class="sidebar-nav-link">
+                            <i class="fas fa-compass"></i> Explore
+                        </a>
+                    </li>
+                    <li class="sidebar-nav-item">
+                        <a href="/saved" class="sidebar-nav-link">
+                            <i class="fas fa-bookmark"></i> Saved
+                        </a>
+                    </li>
+                    <li class="sidebar-nav-item">
+                        <a href="/trending" class="sidebar-nav-link">
+                            <i class="fas fa-chart-line"></i> Trending
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Your Communities</h3>
+            </div>
+            <div class="card-body">
+                <ul class="community-list" id="user-communities">
+                    <li class="loading">Loading communities...</li>
+                </ul>
+                <a href="/communities/discover" class="btn btn-outline btn-sm mt-3">
+                    <i class="fas fa-search"></i> Discover More
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="card create-post-card">
+            <div class="card-body">
+                <div class="create-post-header">
+                    <img src="/static/img/default-avatar.svg" alt="Your avatar" id="create-post-avatar" class="post-avatar">
+                    <textarea id="create-post-input" placeholder="What's on your mind?"></textarea>
+                </div>
+                <div class="create-post-actions">
+                    <button class="btn-icon" id="add-image-btn" title="Add Image">
+                        <i class="fas fa-image"></i>
+                    </button>
+                    <button class="btn-icon" id="add-tag-btn" title="Add Tag">
+                        <i class="fas fa-tag"></i>
+                    </button>
+                    <button class="btn-icon" id="visibility-btn" title="Visibility">
+                        <i class="fas fa-globe"></i>
+                    </button>
+                    <button class="btn btn-primary" id="create-post-btn">Post</button>
+                </div>
+                <div id="create-post-options" class="hidden">
+                    <div id="image-preview"></div>
+                    <div id="tags-container"></div>
+                    <div id="visibility-selector">
+                        <select id="visibility-select">
+                            <option value="public">Public</option>
+                            <option value="followers">Followers Only</option>
+                            <option value="private">Private</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="feed-tabs">
+            <button class="feed-tab active" data-feed="all">For You</button>
+            <button class="feed-tab" data-feed="following">Following</button>
+            <button class="feed-tab" data-feed="communities">Communities</button>
+        </div>
+
+        <div id="feed-container">
+            <div class="loader">
+                <div class="spinner"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Sidebar -->
+    <div class="sidebar right-sidebar">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Trending Tags</h3>
+            </div>
+            <div class="card-body">
+                <ul class="trending-tags" id="trending-tags">
+                    <li class="loading">Loading trending tags...</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Suggested Users</h3>
+            </div>
+            <div class="card-body">
+                <ul class="suggested-users" id="suggested-users">
+                    <li class="loading">Loading suggestions...</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Upcoming Events</h3>
+            </div>
+            <div class="card-body">
+                <ul class="upcoming-events" id="upcoming-events">
+                    <li class="event">
+                        <div class="event-date">Apr 15</div>
+                        <div class="event-details">
+                            <h4 class="event-title">Community Meetup</h4>
+                            <p class="event-description">Join us for a virtual community meetup!</p>
+                        </div>
+                    </li>
+                    <li class="event">
+                        <div class="event-date">Apr 22</div>
+                        <div class="event-details">
+                            <h4 class="event-title">Tech Talk</h4>
+                            <p class="event-description">Learn about the latest in AI technology</p>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Load feed
+    const feedContainer = document.getElementById('feed-container');
+    loadFeed(feedContainer);
+    
+    // Get user communities
+    loadUserCommunities();
+    
+    // Get trending tags
+    loadTrendingTags();
+    
+    // Get suggested users
+    loadSuggestedUsers();
+    
+    // Update user profile info
+    updateUserProfile();
+    
+    // Set up feed tabs
+    setupFeedTabs();
+    
+    // Set up post creation
+    setupPostCreation();
+});
+
+function loadUserCommunities() {
+    const communitiesContainer = document.getElementById('user-communities');
+    
+    // Make API call to get user's communities
+    SociSphereAPI.Communities.getCommunities()
+        .then(data => {
+            if (!data || !data.results || data.results.length === 0) {
+                communitiesContainer.innerHTML = '<li class="empty">You haven\'t joined any communities yet.</li>';
+                return;
+            }
+            
+            communitiesContainer.innerHTML = '';
+            
+            // Display first 5 communities
+            const communities = data.results.slice(0, 5);
+            communities.forEach(community => {
+                const li = document.createElement('li');
+                li.className = 'community-item';
+                li.innerHTML = `
+                    <a href="/communities/${community.slug}" class="community-link">
+                        <div class="community-icon">
+                            <img src="${community.icon || '/static/img/default-community.png'}" alt="${community.name}">
+                        </div>
+                        <div class="community-name">${community.name}</div>
+                    </a>
+                `;
+                communitiesContainer.appendChild(li);
+            });
+            
+            if (data.results.length > 5) {
+                const li = document.createElement('li');
+                li.className = 'community-item view-all';
+                li.innerHTML = `
+                    <a href="/communities" class="community-link">
+                        View all (${data.results.length})
+                    </a>
+                `;
+                communitiesContainer.appendChild(li);
+            }
+        })
+        .catch(error => {
+            console.error('Error loading communities:', error);
+            communitiesContainer.innerHTML = '<li class="error">Failed to load communities.</li>';
+        });
+}
+
+function loadTrendingTags() {
+    const tagsContainer = document.getElementById('trending-tags');
+    
+    // Mock data - in a real app, would call an endpoint to get trending tags
+    const mockTags = [
+        { name: 'technology', count: 245 },
+        { name: 'design', count: 189 },
+        { name: 'news', count: 167 },
+        { name: 'wellness', count: 142 },
+        { name: 'travel', count: 118 }
+    ];
+    
+    tagsContainer.innerHTML = '';
+    
+    mockTags.forEach(tag => {
+        const li = document.createElement('li');
+        li.className = 'tag-item';
+        li.innerHTML = `
+            <a href="/tags/${tag.name}" class="tag-link">
+                <span class="tag-name">#${tag.name}</span>
+                <span class="tag-count">${tag.count} posts</span>
+            </a>
+        `;
+        tagsContainer.appendChild(li);
+    });
+}
+
+function loadSuggestedUsers() {
+    const usersContainer = document.getElementById('suggested-users');
+    
+    // Mock data - in a real app, would call an endpoint to get suggested users
+    const mockUsers = [
+        { id: 3, username: 'johndoe', first_name: 'John', last_name: 'Doe', profile_image: null },
+        { id: 4, username: 'janesmith', first_name: 'Jane', last_name: 'Smith', profile_image: null },
+        { id: 5, username: 'mikeross', first_name: 'Mike', last_name: 'Ross', profile_image: null }
+    ];
+    
+    usersContainer.innerHTML = '';
+    
+    mockUsers.forEach(user => {
+        const li = document.createElement('li');
+        li.className = 'user-item';
+        li.innerHTML = `
+            <a href="/users/${user.id}" class="user-link">
+                <img src="${user.profile_image || '/static/img/default-avatar.svg'}" alt="${user.username}" class="user-avatar">
+                <div class="user-info">
+                    <div class="user-name">${user.first_name} ${user.last_name}</div>
+                    <div class="user-username">@${user.username}</div>
+                </div>
+            </a>
+            <button class="btn btn-outline btn-sm follow-btn" data-user-id="${user.id}">Follow</button>
+        `;
+        usersContainer.appendChild(li);
+    });
+    
+    // Add event listeners to follow buttons
+    document.querySelectorAll('.follow-btn').forEach(button => {
+        button.addEventListener('click', (e) => {
+            e.preventDefault();
+            const userId = button.dataset.userId;
+            
+            SociSphereAPI.Interactions.followUser(userId)
+                .then(() => {
+                    button.textContent = 'Following';
+                    button.disabled = true;
+                })
+                .catch(error => {
+                    console.error('Error following user:', error);
+                });
+        });
+    });
+}
+
+function updateUserProfile() {
+    // Get user data from session storage
+    const userData = JSON.parse(sessionStorage.getItem('current_user'));
+    
+    if (userData) {
+        // Update profile info
+        document.getElementById('user-name').textContent = `${userData.first_name} ${userData.last_name}`;
+        document.getElementById('user-username').textContent = `@${userData.username}`;
+        
+        // Update avatar
+        const avatarSrc = userData.profile_image || '/static/img/default-avatar.svg';
+        document.getElementById('user-avatar').src = avatarSrc;
+        document.getElementById('create-post-avatar').src = avatarSrc;
+    }
+}
+
+function setupFeedTabs() {
+    const tabs = document.querySelectorAll('.feed-tab');
+    const feedContainer = document.getElementById('feed-container');
+    
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            // Remove active class from all tabs
+            tabs.forEach(t => t.classList.remove('active'));
+            
+            // Add active class to clicked tab
+            tab.classList.add('active');
+            
+            // Load appropriate feed
+            const feedType = tab.dataset.feed;
+            
+            feedContainer.innerHTML = '<div class="loader"><div class="spinner"></div></div>';
+            
+            if (feedType === 'all') {
+                loadFeed(feedContainer);
+            } else if (feedType === 'following') {
+                // In a real app, this would call a different endpoint or pass parameters
+                // For simplicity, we'll just load the regular feed here
+                loadFeed(feedContainer);
+            } else if (feedType === 'communities') {
+                // In a real app, this would call a different endpoint
+                // For simplicity, we'll just load the regular feed here
+                loadFeed(feedContainer);
+            }
+        });
+    });
+}
+
+function setupPostCreation() {
+    const createPostBtn = document.getElementById('create-post-btn');
+    const createPostInput = document.getElementById('create-post-input');
+    const feedContainer = document.getElementById('feed-container');
+    
+    createPostBtn.addEventListener('click', () => {
+        const postContent = createPostInput.value.trim();
+        
+        if (!postContent) {
+            alert('Please enter some content for your post.');
+            return;
+        }
+        
+        const visibilitySelect = document.getElementById('visibility-select');
+        const visibility = visibilitySelect ? visibilitySelect.value : 'public';
+        
+        const postData = {
+            body: postContent,
+            visibility: visibility,
+            tag_ids: [] // In a real app, you'd get these from the UI
+        };
+        
+        createPostBtn.disabled = true;
+        createPostBtn.textContent = 'Posting...';
+        
+        createPost(postData)
+            .then(post => {
+                // Clear input
+                createPostInput.value = '';
+                
+                // Create and insert new post at the top of the feed
+                const tempContainer = document.createElement('div');
+                renderPost(post, tempContainer);
+                
+                const firstPost = feedContainer.querySelector('.post');
+                if (firstPost) {
+                    feedContainer.insertBefore(tempContainer.firstChild, firstPost);
+                } else {
+                    feedContainer.innerHTML = '';
+                    feedContainer.appendChild(tempContainer.firstChild);
+                }
+                
+                // Reset button
+                createPostBtn.disabled = false;
+                createPostBtn.textContent = 'Post';
+            })
+            .catch(error => {
+                console.error('Error creating post:', error);
+                alert('Failed to create post. Please try again.');
+                createPostBtn.disabled = false;
+                createPostBtn.textContent = 'Post';
+            });
+    });
+    
+    // Toggle post options
+    const addImageBtn = document.getElementById('add-image-btn');
+    const addTagBtn = document.getElementById('add-tag-btn');
+    const visibilityBtn = document.getElementById('visibility-btn');
+    const postOptions = document.getElementById('create-post-options');
+    
+    addImageBtn.addEventListener('click', () => {
+        postOptions.classList.remove('hidden');
+        // In a real app, would open file picker
+        alert('Image upload functionality would be implemented here.');
+    });
+    
+    addTagBtn.addEventListener('click', () => {
+        postOptions.classList.remove('hidden');
+        // In a real app, would show tag selector
+        alert('Tag selection functionality would be implemented here.');
+    });
+    
+    visibilityBtn.addEventListener('click', () => {
+        postOptions.classList.remove('hidden');
+        const visibilitySelector = document.getElementById('visibility-selector');
+        visibilitySelector.style.display = visibilitySelector.style.display === 'block' ? 'none' : 'block';
+    });
+}
+</script>
+<script src="/static/js/api.js"></script>
+<script src="/static/js/main.js"></script>
+{% endblock %} 

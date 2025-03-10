@@ -1,0 +1,462 @@
+{% extends "base.html" %}
+
+{% block title %}Communities{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="page-header">
+        <h1 class="page-title">Communities</h1>
+        <div class="page-actions">
+            <button class="btn btn-primary" id="create-community-btn">
+                <i class="fas fa-plus"></i> Create Community
+            </button>
+        </div>
+    </div>
+    
+    <div class="tab-navigation">
+        <button class="tab-button active" data-tab="my-communities">My Communities</button>
+        <button class="tab-button" data-tab="discover">Discover</button>
+        <button class="tab-button" data-tab="recommended">Recommended</button>
+    </div>
+    
+    <div class="tab-content">
+        <div class="tab-pane active" id="my-communities-pane">
+            <div class="communities-grid" id="my-communities-grid">
+                <div class="loader">
+                    <div class="spinner"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="tab-pane" id="discover-pane">
+            <div class="communities-filter">
+                <input type="text" class="form-control" id="discover-search" placeholder="Search communities...">
+                <select class="form-control" id="discover-filter">
+                    <option value="all">All Categories</option>
+                    <option value="technology">Technology</option>
+                    <option value="health">Health & Wellness</option>
+                    <option value="hobbies">Hobbies & Interests</option>
+                    <option value="education">Education</option>
+                    <option value="entertainment">Entertainment</option>
+                </select>
+            </div>
+            
+            <div class="communities-grid" id="discover-grid">
+                <div class="loader">
+                    <div class="spinner"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="tab-pane" id="recommended-pane">
+            <div class="communities-grid" id="recommended-grid">
+                <div class="loader">
+                    <div class="spinner"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Community Creation Modal -->
+<div class="modal" id="create-community-modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 class="modal-title">Create New Community</h2>
+            <button class="modal-close">&times;</button>
+        </div>
+        <div class="modal-body">
+            <form id="create-community-form">
+                <div class="form-group">
+                    <label for="community-name" class="form-label">Community Name</label>
+                    <input type="text" id="community-name" class="form-control" placeholder="Enter community name" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="community-description" class="form-label">Description</label>
+                    <textarea id="community-description" class="form-control" placeholder="Describe what your community is about" rows="4" required></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="community-visibility" class="form-label">Visibility</label>
+                    <select id="community-visibility" class="form-control" required>
+                        <option value="public">Public - Anyone can view and join</option>
+                        <option value="restricted">Restricted - Anyone can view, membership requires approval</option>
+                        <option value="private">Private - Only members can view and participate</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <div class="form-check">
+                        <input type="checkbox" id="community-post-approval" class="form-check-input">
+                        <label for="community-post-approval" class="form-check-label">Require post approval by moderators</label>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-outline" id="cancel-community-btn">Cancel</button>
+            <button class="btn btn-primary" id="submit-community-btn">Create Community</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize tabs
+    initTabs();
+    
+    // Initialize community creation modal
+    initCommunityModal();
+    
+    // Load initial communities
+    loadMyCommunities();
+});
+
+function initTabs() {
+    const tabButtons = document.querySelectorAll('.tab-button');
+    
+    tabButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            // Remove active class from all buttons and panes
+            document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+            
+            // Add active class to clicked button
+            button.classList.add('active');
+            
+            // Get tab identifier and activate corresponding pane
+            const tabId = button.dataset.tab;
+            document.getElementById(`${tabId}-pane`).classList.add('active');
+            
+            // Load content for the tab if needed
+            if (tabId === 'my-communities' && !button.dataset.loaded) {
+                loadMyCommunities();
+                button.dataset.loaded = 'true';
+            } else if (tabId === 'discover' && !button.dataset.loaded) {
+                loadDiscoverCommunities();
+                button.dataset.loaded = 'true';
+            } else if (tabId === 'recommended' && !button.dataset.loaded) {
+                loadRecommendedCommunities();
+                button.dataset.loaded = 'true';
+            }
+        });
+    });
+    
+    // Set up discovery search and filter
+    const discoverSearch = document.getElementById('discover-search');
+    const discoverFilter = document.getElementById('discover-filter');
+    
+    discoverSearch.addEventListener('input', debounce(() => {
+        loadDiscoverCommunities();
+    }, 500));
+    
+    discoverFilter.addEventListener('change', () => {
+        loadDiscoverCommunities();
+    });
+}
+
+function initCommunityModal() {
+    const modal = document.getElementById('create-community-modal');
+    const createBtn = document.getElementById('create-community-btn');
+    const closeBtn = document.querySelector('.modal-close');
+    const cancelBtn = document.getElementById('cancel-community-btn');
+    const submitBtn = document.getElementById('submit-community-btn');
+    const form = document.getElementById('create-community-form');
+    
+    createBtn.addEventListener('click', () => {
+        modal.style.display = 'block';
+    });
+    
+    closeBtn.addEventListener('click', () => {
+        modal.style.display = 'none';
+    });
+    
+    cancelBtn.addEventListener('click', () => {
+        modal.style.display = 'none';
+    });
+    
+    window.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            modal.style.display = 'none';
+        }
+    });
+    
+    submitBtn.addEventListener('click', () => {
+        const name = document.getElementById('community-name').value.trim();
+        const description = document.getElementById('community-description').value.trim();
+        const visibility = document.getElementById('community-visibility').value;
+        const requiresPostApproval = document.getElementById('community-post-approval').checked;
+        
+        if (!name || !description) {
+            alert('Please fill out all required fields.');
+            return;
+        }
+        
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Creating...';
+        
+        // Generate slug from name
+        const slug = name.toLowerCase()
+            .replace(/[^\w\s-]/g, '')
+            .replace(/\s+/g, '-')
+            .replace(/-+/g, '-');
+        
+        const communityData = {
+            name,
+            slug,
+            description,
+            visibility,
+            requires_post_approval: requiresPostApproval
+        };
+        
+        SociSphereAPI.Communities.createCommunity(communityData)
+            .then(community => {
+                // Close modal
+                modal.style.display = 'none';
+                
+                // Reset form
+                form.reset();
+                
+                // Reload communities
+                loadMyCommunities();
+                
+                // Show success message
+                alert('Community created successfully!');
+            })
+            .catch(error => {
+                console.error('Error creating community:', error);
+                alert('Failed to create community. Please try again.');
+            })
+            .finally(() => {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Create Community';
+            });
+    });
+}
+
+function loadMyCommunities() {
+    const container = document.getElementById('my-communities-grid');
+    container.innerHTML = '<div class="loader"><div class="spinner"></div></div>';
+    
+    SociSphereAPI.Communities.getCommunities()
+        .then(data => {
+            container.innerHTML = '';
+            
+            if (!data || !data.results || data.results.length === 0) {
+                container.innerHTML = '<div class="empty-state">You haven\'t joined any communities yet. Discover communities to join!</div>';
+                return;
+            }
+            
+            data.results.forEach(community => {
+                renderCommunity(community, container);
+            });
+        })
+        .catch(error => {
+            console.error('Error loading communities:', error);
+            container.innerHTML = '<div class="error-state">Failed to load communities. Please try again later.</div>';
+        });
+}
+
+function loadDiscoverCommunities() {
+    const container = document.getElementById('discover-grid');
+    const searchQuery = document.getElementById('discover-search').value.trim();
+    const categoryFilter = document.getElementById('discover-filter').value;
+    
+    container.innerHTML = '<div class="loader"><div class="spinner"></div></div>';
+    
+    SociSphereAPI.Communities.discoverCommunities()
+        .then(data => {
+            container.innerHTML = '';
+            
+            if (!data || !data.results || data.results.length === 0) {
+                container.innerHTML = '<div class="empty-state">No communities found. Try a different search.</div>';
+                return;
+            }
+            
+            // Filter results if needed
+            let results = data.results;
+            
+            if (searchQuery) {
+                results = results.filter(community => 
+                    community.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                    community.description.toLowerCase().includes(searchQuery.toLowerCase())
+                );
+            }
+            
+            if (categoryFilter && categoryFilter !== 'all') {
+                // In a real app, you'd filter by category. For demo purposes, we'll just show a subset of communities.
+                results = results.slice(0, 5);
+            }
+            
+            if (results.length === 0) {
+                container.innerHTML = '<div class="empty-state">No communities match your search criteria.</div>';
+                return;
+            }
+            
+            results.forEach(community => {
+                renderCommunity(community, container);
+            });
+        })
+        .catch(error => {
+            console.error('Error loading discover communities:', error);
+            container.innerHTML = '<div class="error-state">Failed to load communities. Please try again later.</div>';
+        });
+}
+
+function loadRecommendedCommunities() {
+    const container = document.getElementById('recommended-grid');
+    container.innerHTML = '<div class="loader"><div class="spinner"></div></div>';
+    
+    SociSphereAPI.Communities.getRecommendedCommunities()
+        .then(data => {
+            container.innerHTML = '';
+            
+            if (!data || !data.results || data.results.length === 0) {
+                container.innerHTML = '<div class="empty-state">No recommended communities found. Try exploring the Discover tab!</div>';
+                return;
+            }
+            
+            data.results.forEach(community => {
+                renderCommunity(community, container);
+            });
+        })
+        .catch(error => {
+            console.error('Error loading recommended communities:', error);
+            container.innerHTML = '<div class="error-state">Failed to load recommendations. Please try again later.</div>';
+        });
+}
+
+function renderCommunity(community, container) {
+    const card = document.createElement('div');
+    card.className = 'community-card';
+    
+    card.innerHTML = `
+        <div class="community-card-header">
+            <img src="${community.banner || '/static/img/default-banner.png'}" alt="${community.name}" class="community-cover">
+            <div class="community-icon-wrapper">
+                <img src="${community.icon || '/static/img/default-community.png'}" alt="${community.name}" class="community-icon">
+            </div>
+        </div>
+        <div class="community-body">
+            <h3 class="community-title">${community.name}</h3>
+            <p class="community-description">${community.description}</p>
+            <div class="community-stats">
+                <div class="community-stat">
+                    <i class="fas fa-users"></i> ${community.members_count} members
+                </div>
+                <div class="community-stat">
+                    <i class="fas fa-newspaper"></i> ${community.posts_count} posts
+                </div>
+            </div>
+            <div class="community-actions">
+                <a href="/communities/${community.slug}" class="btn btn-outline btn-sm">View</a>
+                ${!community.is_member ? 
+                    `<button class="btn btn-primary btn-sm join-btn" data-slug="${community.slug}">Join</button>` : 
+                    `<button class="btn btn-outline btn-sm leave-btn" data-slug="${community.slug}">Leave</button>`
+                }
+            </div>
+        </div>
+    `;
+    
+    // Add event listeners to join/leave buttons
+    const joinBtn = card.querySelector('.join-btn');
+    const leaveBtn = card.querySelector('.leave-btn');
+    
+    if (joinBtn) {
+        joinBtn.addEventListener('click', () => {
+            const slug = joinBtn.dataset.slug;
+            
+            joinBtn.disabled = true;
+            joinBtn.textContent = 'Joining...';
+            
+            SociSphereAPI.Communities.joinCommunity(slug)
+                .then(() => {
+                    // Replace join button with leave button
+                    const actions = joinBtn.parentElement;
+                    actions.removeChild(joinBtn);
+                    
+                    const newLeaveBtn = document.createElement('button');
+                    newLeaveBtn.className = 'btn btn-outline btn-sm leave-btn';
+                    newLeaveBtn.dataset.slug = slug;
+                    newLeaveBtn.textContent = 'Leave';
+                    
+                    newLeaveBtn.addEventListener('click', () => {
+                        handleLeave(newLeaveBtn, slug);
+                    });
+                    
+                    actions.appendChild(newLeaveBtn);
+                })
+                .catch(error => {
+                    console.error('Error joining community:', error);
+                    joinBtn.disabled = false;
+                    joinBtn.textContent = 'Join';
+                });
+        });
+    }
+    
+    if (leaveBtn) {
+        leaveBtn.addEventListener('click', () => {
+            handleLeave(leaveBtn, leaveBtn.dataset.slug);
+        });
+    }
+    
+    container.appendChild(card);
+}
+
+function handleLeave(button, slug) {
+    button.disabled = true;
+    button.textContent = 'Leaving...';
+    
+    SociSphereAPI.Communities.leaveCommunity(slug)
+        .then(() => {
+            // Replace leave button with join button
+            const actions = button.parentElement;
+            actions.removeChild(button);
+            
+            const newJoinBtn = document.createElement('button');
+            newJoinBtn.className = 'btn btn-primary btn-sm join-btn';
+            newJoinBtn.dataset.slug = slug;
+            newJoinBtn.textContent = 'Join';
+            
+            newJoinBtn.addEventListener('click', () => {
+                const slug = newJoinBtn.dataset.slug;
+                
+                newJoinBtn.disabled = true;
+                newJoinBtn.textContent = 'Joining...';
+                
+                SociSphereAPI.Communities.joinCommunity(slug)
+                    .then(() => {
+                        // Refresh the community display
+                        loadMyCommunities();
+                    })
+                    .catch(error => {
+                        console.error('Error joining community:', error);
+                        newJoinBtn.disabled = false;
+                        newJoinBtn.textContent = 'Join';
+                    });
+            });
+            
+            actions.appendChild(newJoinBtn);
+        })
+        .catch(error => {
+            console.error('Error leaving community:', error);
+            button.disabled = false;
+            button.textContent = 'Leave';
+        });
+}
+
+// Utility function to debounce inputs
+function debounce(func, wait) {
+    let timeout;
+    return function() {
+        const context = this;
+        const args = arguments;
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(context, args), wait);
+    };
+}
+</script>
+{% endblock %} 

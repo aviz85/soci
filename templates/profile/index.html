@@ -1,0 +1,847 @@
+{% extends "base.html" %}
+
+{% block title %}Profile - SociSphere{% endblock %}
+
+{% block content %}
+<div class="profile-header">
+    <div class="profile-cover">
+        <img src="/static/img/default-cover.svg" alt="Cover" id="profile-cover-img">
+        <div class="profile-edit-cover" id="profile-edit-button-container">
+            <button class="btn btn-light btn-sm" id="edit-profile-button">
+                <i class="fas fa-edit"></i> Edit Profile
+            </button>
+        </div>
+    </div>
+    <div class="container">
+        <div class="profile-info">
+            <div class="profile-avatar">
+                <img src="/static/img/default-avatar.svg" alt="Avatar" id="profile-avatar-img">
+            </div>
+            <div class="profile-details">
+                <h1 class="profile-name" id="profile-name">User Name</h1>
+                <p class="profile-username" id="profile-username">@username</p>
+                <p class="profile-bio" id="profile-bio">No bio yet.</p>
+                <div class="profile-meta">
+                    <div class="profile-meta-item">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span id="profile-location">Location not set</span>
+                    </div>
+                    <div class="profile-meta-item">
+                        <i class="fas fa-link"></i>
+                        <span id="profile-website">No website</span>
+                    </div>
+                    <div class="profile-meta-item">
+                        <i class="fas fa-calendar-alt"></i>
+                        <span id="profile-joined">Joined: Not available</span>
+                    </div>
+                </div>
+            </div>
+            <div class="profile-stats">
+                <div class="stat-item">
+                    <div class="stat-value" id="posts-count">0</div>
+                    <div class="stat-label">Posts</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="following-count">0</div>
+                    <div class="stat-label">Following</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="followers-count">0</div>
+                    <div class="stat-label">Followers</div>
+                </div>
+            </div>
+            <div class="profile-actions" id="profile-actions">
+                <!-- Will be filled by JavaScript -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container py-4">
+    <div class="tab-navigation">
+        <button class="tab-button active" data-tab="posts">Posts</button>
+        <button class="tab-button" data-tab="media">Media</button>
+        <button class="tab-button" data-tab="likes">Likes</button>
+        <button class="tab-button" data-tab="communities">Communities</button>
+    </div>
+
+    <div class="tab-pane active" id="posts-tab">
+        <div id="profile-posts" class="profile-posts">
+            <div class="empty-state">
+                <div class="empty-state-icon">📝</div>
+                <h3>No posts yet</h3>
+                <p>When posts are created, they will appear here.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="tab-pane" id="media-tab">
+        <div id="profile-media" class="profile-media-grid">
+            <div class="empty-state">
+                <div class="empty-state-icon">🖼️</div>
+                <h3>No media yet</h3>
+                <p>Photos and videos will appear here.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="tab-pane" id="likes-tab">
+        <div id="profile-likes" class="profile-posts">
+            <div class="empty-state">
+                <div class="empty-state-icon">❤️</div>
+                <h3>No likes yet</h3>
+                <p>Posts that are liked will appear here.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="tab-pane" id="communities-tab">
+        <div id="profile-communities" class="communities-grid">
+            <div class="empty-state">
+                <div class="empty-state-icon">👥</div>
+                <h3>No communities yet</h3>
+                <p>Communities that this user is a member of will appear here.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Profile Modal -->
+<div class="modal" id="edit-profile-modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 class="modal-title">Edit Profile</h2>
+            <button class="modal-close" id="close-edit-profile-modal">&times;</button>
+        </div>
+        <div class="modal-body">
+            <form id="edit-profile-form">
+                <div class="form-group">
+                    <label for="edit-display-name">Display Name</label>
+                    <input type="text" id="edit-display-name" class="form-control" maxlength="50">
+                </div>
+                <div class="form-group">
+                    <label for="edit-bio">Bio</label>
+                    <textarea id="edit-bio" class="form-control" rows="3" maxlength="160"></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group half">
+                        <label for="edit-location">Location</label>
+                        <input type="text" id="edit-location" class="form-control" maxlength="30">
+                    </div>
+                    <div class="form-group half">
+                        <label for="edit-website">Website</label>
+                        <input type="url" id="edit-website" class="form-control" placeholder="https://example.com">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Profile Picture</label>
+                    <div class="file-input-wrapper">
+                        <button class="btn btn-outlined btn-sm" id="upload-avatar-btn">Choose File</button>
+                        <span id="avatar-filename">No file chosen</span>
+                        <input type="file" id="avatar-upload" accept="image/*" class="hidden-file-input">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Cover Photo</label>
+                    <div class="file-input-wrapper">
+                        <button class="btn btn-outlined btn-sm" id="upload-cover-btn">Choose File</button>
+                        <span id="cover-filename">No file chosen</span>
+                        <input type="file" id="cover-upload" accept="image/*" class="hidden-file-input">
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-outlined" id="cancel-edit-profile">Cancel</button>
+            <button class="btn btn-primary" id="save-profile">Save Changes</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Tab navigation
+        const tabButtons = document.querySelectorAll('.tab-button');
+        const tabPanes = document.querySelectorAll('.tab-pane');
+        
+        tabButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const tabName = this.dataset.tab;
+                
+                // Update active button
+                tabButtons.forEach(btn => btn.classList.remove('active'));
+                this.classList.add('active');
+                
+                // Update active tab pane
+                tabPanes.forEach(pane => pane.classList.remove('active'));
+                document.getElementById(`${tabName}-tab`).classList.add('active');
+                
+                // Load content for this tab
+                loadTabContent(tabName);
+            });
+        });
+        
+        // Edit profile button
+        const editProfileButton = document.getElementById('edit-profile-button');
+        const editProfileModal = document.getElementById('edit-profile-modal');
+        const closeEditProfileModal = document.getElementById('close-edit-profile-modal');
+        const cancelEditProfile = document.getElementById('cancel-edit-profile');
+        const saveProfileButton = document.getElementById('save-profile');
+        
+        editProfileButton.addEventListener('click', function() {
+            // Populate form with current profile data
+            populateEditForm();
+            editProfileModal.style.display = 'block';
+        });
+        
+        closeEditProfileModal.addEventListener('click', function() {
+            editProfileModal.style.display = 'none';
+        });
+        
+        cancelEditProfile.addEventListener('click', function() {
+            editProfileModal.style.display = 'none';
+        });
+        
+        // File upload buttons
+        const uploadAvatarBtn = document.getElementById('upload-avatar-btn');
+        const avatarUpload = document.getElementById('avatar-upload');
+        const avatarFilename = document.getElementById('avatar-filename');
+        
+        uploadAvatarBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            avatarUpload.click();
+        });
+        
+        avatarUpload.addEventListener('change', function() {
+            if (this.files.length > 0) {
+                avatarFilename.textContent = this.files[0].name;
+            } else {
+                avatarFilename.textContent = 'No file chosen';
+            }
+        });
+        
+        const uploadCoverBtn = document.getElementById('upload-cover-btn');
+        const coverUpload = document.getElementById('cover-upload');
+        const coverFilename = document.getElementById('cover-filename');
+        
+        uploadCoverBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            coverUpload.click();
+        });
+        
+        coverUpload.addEventListener('change', function() {
+            if (this.files.length > 0) {
+                coverFilename.textContent = this.files[0].name;
+            } else {
+                coverFilename.textContent = 'No file chosen';
+            }
+        });
+        
+        // Save profile changes
+        saveProfileButton.addEventListener('click', saveProfileChanges);
+        
+        // Check if we're viewing our own profile or someone else's
+        checkProfileOwnership();
+        
+        // Load profile data
+        loadProfileData();
+        
+        // Load initial tab content (posts)
+        loadTabContent('posts');
+        
+        // Check for JWT token
+        checkAuthState();
+    });
+    
+    function checkAuthState() {
+        const token = localStorage.getItem('access_token');
+        if (!token) {
+            window.location.href = '/login';
+            return;
+        }
+    }
+    
+    function checkProfileOwnership() {
+        // Get username from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const usernameParam = urlParams.get('username');
+        
+        // If no username in URL, we're viewing our own profile
+        if (!usernameParam) {
+            document.getElementById('profile-edit-button-container').classList.remove('hidden');
+            return true;
+        }
+        
+        // Check if the username matches our own
+        const currentUsername = localStorage.getItem('username');
+        if (usernameParam === currentUsername) {
+            document.getElementById('profile-edit-button-container').classList.remove('hidden');
+            return true;
+        }
+        
+        // Not the profile owner
+        document.getElementById('profile-edit-button-container').classList.add('hidden');
+        
+        // Show follow/unfollow button
+        const actionsContainer = document.getElementById('profile-actions');
+        actionsContainer.innerHTML = `
+            <button class="btn btn-primary" id="follow-button">
+                <i class="fas fa-user-plus"></i> Follow
+            </button>
+        `;
+        
+        // Add event listener for follow button
+        document.getElementById('follow-button').addEventListener('click', toggleFollow);
+        
+        return false;
+    }
+    
+    async function loadProfileData() {
+        try {
+            const token = localStorage.getItem('access_token');
+            
+            // Get username from URL or use current user
+            const urlParams = new URLSearchParams(window.location.search);
+            const usernameParam = urlParams.get('username');
+            
+            let url = 'http://localhost:8080/api/users/me/';
+            if (usernameParam) {
+                url = `http://localhost:8080/api/users/${usernameParam}/`;
+            }
+            
+            const response = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            
+            if (!response.ok) {
+                throw new Error('Failed to load profile data');
+            }
+            
+            const userData = await response.json();
+            
+            // Update profile UI
+            document.getElementById('profile-name').textContent = userData.full_name || userData.username;
+            document.getElementById('profile-username').textContent = `@${userData.username}`;
+            document.getElementById('profile-bio').textContent = userData.bio || 'No bio yet.';
+            
+            if (userData.location) {
+                document.getElementById('profile-location').textContent = userData.location;
+            }
+            
+            if (userData.website) {
+                const websiteElement = document.getElementById('profile-website');
+                websiteElement.textContent = userData.website;
+                websiteElement.href = userData.website.startsWith('http') ? userData.website : `https://${userData.website}`;
+            }
+            
+            if (userData.date_joined) {
+                const joinDate = new Date(userData.date_joined);
+                document.getElementById('profile-joined').textContent = `Joined: ${joinDate.toLocaleDateString()}`;
+            }
+            
+            // Update profile image if available
+            if (userData.avatar) {
+                document.getElementById('profile-avatar-img').src = userData.avatar;
+            }
+            
+            if (userData.cover_image) {
+                document.getElementById('profile-cover-img').src = userData.cover_image;
+            }
+            
+            // Update stats
+            if (userData.post_count) {
+                document.getElementById('posts-count').textContent = userData.post_count;
+            }
+            
+            if (userData.following_count) {
+                document.getElementById('following-count').textContent = userData.following_count;
+            }
+            
+            if (userData.followers_count) {
+                document.getElementById('followers-count').textContent = userData.followers_count;
+            }
+            
+            // Check if we're following this user
+            if (usernameParam && userData.is_following !== undefined) {
+                const followButton = document.getElementById('follow-button');
+                if (followButton) {
+                    if (userData.is_following) {
+                        followButton.innerHTML = '<i class="fas fa-user-minus"></i> Unfollow';
+                        followButton.classList.remove('btn-primary');
+                        followButton.classList.add('btn-outlined');
+                    } else {
+                        followButton.innerHTML = '<i class="fas fa-user-plus"></i> Follow';
+                        followButton.classList.add('btn-primary');
+                        followButton.classList.remove('btn-outlined');
+                    }
+                }
+            }
+            
+        } catch (error) {
+            console.error('Error loading profile data:', error);
+            // Show error message
+        }
+    }
+    
+    function populateEditForm() {
+        const name = document.getElementById('profile-name').textContent;
+        const bio = document.getElementById('profile-bio').textContent;
+        const location = document.getElementById('profile-location').textContent;
+        const website = document.getElementById('profile-website').textContent;
+        
+        document.getElementById('edit-display-name').value = name === 'User Name' ? '' : name;
+        document.getElementById('edit-bio').value = bio === 'No bio yet.' ? '' : bio;
+        document.getElementById('edit-location').value = location === 'Location not set' ? '' : location;
+        document.getElementById('edit-website').value = website === 'No website' ? '' : website;
+    }
+    
+    async function saveProfileChanges() {
+        try {
+            const token = localStorage.getItem('access_token');
+            
+            const formData = new FormData();
+            formData.append('full_name', document.getElementById('edit-display-name').value);
+            formData.append('bio', document.getElementById('edit-bio').value);
+            formData.append('location', document.getElementById('edit-location').value);
+            formData.append('website', document.getElementById('edit-website').value);
+            
+            // Add avatar if selected
+            const avatarFile = document.getElementById('avatar-upload').files[0];
+            if (avatarFile) {
+                formData.append('avatar', avatarFile);
+            }
+            
+            // Add cover if selected
+            const coverFile = document.getElementById('cover-upload').files[0];
+            if (coverFile) {
+                formData.append('cover_image', coverFile);
+            }
+            
+            const response = await fetch('http://localhost:8080/api/users/me/', {
+                method: 'PATCH',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                },
+                body: formData
+            });
+            
+            if (!response.ok) {
+                throw new Error('Failed to update profile');
+            }
+            
+            // Close modal and reload profile data
+            document.getElementById('edit-profile-modal').style.display = 'none';
+            loadProfileData();
+            
+        } catch (error) {
+            console.error('Error saving profile changes:', error);
+            // Show error message
+        }
+    }
+    
+    async function loadTabContent(tabName) {
+        // Get username from URL or use current user
+        const urlParams = new URLSearchParams(window.location.search);
+        const usernameParam = urlParams.get('username');
+        
+        let username = localStorage.getItem('username');
+        if (usernameParam) {
+            username = usernameParam;
+        }
+        
+        switch (tabName) {
+            case 'posts':
+                await loadUserPosts(username);
+                break;
+            case 'media':
+                await loadUserMedia(username);
+                break;
+            case 'likes':
+                await loadUserLikes(username);
+                break;
+            case 'communities':
+                await loadUserCommunities(username);
+                break;
+        }
+    }
+    
+    async function loadUserPosts(username) {
+        try {
+            const token = localStorage.getItem('access_token');
+            const response = await fetch(`http://localhost:8080/api/content/?user=${username}`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            
+            if (!response.ok) {
+                throw new Error('Failed to load user posts');
+            }
+            
+            const posts = await response.json();
+            renderPosts('profile-posts', posts);
+        } catch (error) {
+            console.error('Error loading user posts:', error);
+            showErrorState('profile-posts', 'Failed to load posts. Please try again later.');
+        }
+    }
+    
+    async function loadUserMedia(username) {
+        try {
+            const token = localStorage.getItem('access_token');
+            const response = await fetch(`http://localhost:8080/api/content/?user=${username}&has_media=true`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            
+            if (!response.ok) {
+                throw new Error('Failed to load user media');
+            }
+            
+            const media = await response.json();
+            renderMedia('profile-media', media);
+        } catch (error) {
+            console.error('Error loading user media:', error);
+            showErrorState('profile-media', 'Failed to load media. Please try again later.');
+        }
+    }
+    
+    async function loadUserLikes(username) {
+        try {
+            const token = localStorage.getItem('access_token');
+            const response = await fetch(`http://localhost:8080/api/content/likes/?user=${username}`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            
+            if (!response.ok) {
+                throw new Error('Failed to load user likes');
+            }
+            
+            const likes = await response.json();
+            renderPosts('profile-likes', likes);
+        } catch (error) {
+            console.error('Error loading user likes:', error);
+            showErrorState('profile-likes', 'Failed to load likes. Please try again later.');
+        }
+    }
+    
+    async function loadUserCommunities(username) {
+        try {
+            const token = localStorage.getItem('access_token');
+            const response = await fetch(`http://localhost:8080/api/communities/user/${username}/`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            
+            if (!response.ok) {
+                throw new Error('Failed to load user communities');
+            }
+            
+            const communities = await response.json();
+            renderCommunities('profile-communities', communities);
+        } catch (error) {
+            console.error('Error loading user communities:', error);
+            showErrorState('profile-communities', 'Failed to load communities. Please try again later.');
+        }
+    }
+    
+    function renderPosts(containerId, posts) {
+        const container = document.getElementById(containerId);
+        
+        // Clear previous content
+        container.innerHTML = '';
+        
+        if (posts.length === 0) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-state-icon">📝</div>
+                    <h3>No posts yet</h3>
+                    <p>When posts are created, they will appear here.</p>
+                </div>
+            `;
+            return;
+        }
+        
+        // Create post items
+        posts.forEach(post => {
+            const postElement = createPostElement(post);
+            container.appendChild(postElement);
+        });
+    }
+    
+    function createPostElement(post) {
+        const postElement = document.createElement('div');
+        postElement.className = 'post-card';
+        postElement.dataset.id = post.id;
+        
+        // Format date
+        const postDate = new Date(post.created_at);
+        const formattedDate = postDate.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+        
+        postElement.innerHTML = `
+            <div class="post-header">
+                <img src="${post.user.avatar || '/static/img/default-avatar.svg'}" alt="${post.user.username}" class="post-avatar">
+                <div class="post-user-info">
+                    <div class="post-user-name">${post.user.full_name || post.user.username}</div>
+                    <div class="post-username">@${post.user.username}</div>
+                </div>
+                <div class="post-date">${formattedDate}</div>
+            </div>
+            <div class="post-content">
+                <p>${post.content}</p>
+                ${post.media ? `<div class="post-media"><img src="${post.media}" alt="Post media" class="post-image"></div>` : ''}
+            </div>
+            <div class="post-footer">
+                <div class="post-action">
+                    <button class="post-action-btn like-btn ${post.user_has_liked ? 'active' : ''}" data-post-id="${post.id}">
+                        <i class="far fa-heart"></i>
+                        <span class="like-count">${post.likes_count || 0}</span>
+                    </button>
+                </div>
+                <div class="post-action">
+                    <button class="post-action-btn comment-btn" data-post-id="${post.id}">
+                        <i class="far fa-comment"></i>
+                        <span class="comment-count">${post.comments_count || 0}</span>
+                    </button>
+                </div>
+                <div class="post-action">
+                    <button class="post-action-btn share-btn" data-post-id="${post.id}">
+                        <i class="far fa-share-square"></i>
+                    </button>
+                </div>
+            </div>
+        `;
+        
+        // Add event listeners for post actions
+        const likeBtn = postElement.querySelector('.like-btn');
+        likeBtn.addEventListener('click', function() {
+            toggleLike(post.id, likeBtn);
+        });
+        
+        const commentBtn = postElement.querySelector('.comment-btn');
+        commentBtn.addEventListener('click', function() {
+            showComments(post.id);
+        });
+        
+        return postElement;
+    }
+    
+    function renderMedia(containerId, posts) {
+        const container = document.getElementById(containerId);
+        
+        // Clear previous content
+        container.innerHTML = '';
+        
+        if (posts.length === 0 || !posts.some(post => post.media)) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-state-icon">🖼️</div>
+                    <h3>No media yet</h3>
+                    <p>Photos and videos will appear here.</p>
+                </div>
+            `;
+            return;
+        }
+        
+        // Create media grid
+        const mediaGrid = document.createElement('div');
+        mediaGrid.className = 'media-grid';
+        
+        // Add media items
+        posts.forEach(post => {
+            if (post.media) {
+                const mediaItem = document.createElement('div');
+                mediaItem.className = 'media-item';
+                mediaItem.dataset.id = post.id;
+                
+                mediaItem.innerHTML = `
+                    <img src="${post.media}" alt="Media" class="media-image">
+                `;
+                
+                mediaItem.addEventListener('click', function() {
+                    // Show post detail
+                    showPostDetail(post.id);
+                });
+                
+                mediaGrid.appendChild(mediaItem);
+            }
+        });
+        
+        container.appendChild(mediaGrid);
+    }
+    
+    function renderCommunities(containerId, communities) {
+        const container = document.getElementById(containerId);
+        
+        // Clear previous content
+        container.innerHTML = '';
+        
+        if (communities.length === 0) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-state-icon">👥</div>
+                    <h3>No communities yet</h3>
+                    <p>Communities that this user is a member of will appear here.</p>
+                </div>
+            `;
+            return;
+        }
+        
+        // Create community grid
+        const communityGrid = document.createElement('div');
+        communityGrid.className = 'communities-grid';
+        
+        // Add community cards
+        communities.forEach(community => {
+            const communityCard = document.createElement('div');
+            communityCard.className = 'community-card';
+            communityCard.dataset.id = community.id;
+            
+            communityCard.innerHTML = `
+                <div class="community-card-header">
+                    <img src="${community.banner_image || '/static/img/default-cover.svg'}" alt="${community.name}" class="community-banner">
+                    <div class="community-icon-wrapper">
+                        <img src="${community.icon || '/static/img/default-community.svg'}" alt="${community.name}" class="community-icon">
+                    </div>
+                </div>
+                <div class="community-card-body">
+                    <h3 class="community-name">${community.name}</h3>
+                    <p class="community-description">${community.description || 'No description available.'}</p>
+                    <div class="community-meta">
+                        <span class="community-member-count">${community.member_count || 0} members</span>
+                        <span class="community-post-count">${community.post_count || 0} posts</span>
+                    </div>
+                </div>
+                <div class="community-card-footer">
+                    <a href="/communities/${community.id}" class="btn btn-primary btn-sm">View Community</a>
+                </div>
+            `;
+            
+            communityGrid.appendChild(communityCard);
+        });
+        
+        container.appendChild(communityGrid);
+    }
+    
+    function showErrorState(containerId, message) {
+        const container = document.getElementById(containerId);
+        container.innerHTML = `
+            <div class="error-state">
+                <div class="error-icon">⚠️</div>
+                <h3>Error</h3>
+                <p>${message}</p>
+            </div>
+        `;
+    }
+    
+    async function toggleLike(postId, button) {
+        try {
+            const token = localStorage.getItem('access_token');
+            
+            const isLiked = button.classList.contains('active');
+            const method = isLiked ? 'DELETE' : 'POST';
+            
+            const response = await fetch(`http://localhost:8080/api/content/${postId}/like/`, {
+                method: method,
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            
+            if (!response.ok) {
+                throw new Error('Failed to toggle like');
+            }
+            
+            // Toggle active class
+            button.classList.toggle('active');
+            
+            // Update like count
+            const likeCountElement = button.querySelector('.like-count');
+            let likeCount = parseInt(likeCountElement.textContent);
+            
+            if (isLiked) {
+                likeCount = Math.max(0, likeCount - 1);
+                button.querySelector('i').className = 'far fa-heart';
+            } else {
+                likeCount += 1;
+                button.querySelector('i').className = 'fas fa-heart';
+            }
+            
+            likeCountElement.textContent = likeCount.toString();
+            
+        } catch (error) {
+            console.error('Error toggling like:', error);
+        }
+    }
+    
+    async function toggleFollow() {
+        try {
+            const token = localStorage.getItem('access_token');
+            
+            // Get username from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const username = urlParams.get('username');
+            
+            if (!username) {
+                throw new Error('Username not found in URL');
+            }
+            
+            const followButton = document.getElementById('follow-button');
+            const isFollowing = followButton.innerHTML.includes('Unfollow');
+            
+            const method = isFollowing ? 'DELETE' : 'POST';
+            
+            const response = await fetch(`http://localhost:8080/api/interactions/follow/${username}/`, {
+                method: method,
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            
+            if (!response.ok) {
+                throw new Error('Failed to toggle follow');
+            }
+            
+            // Update button state
+            if (isFollowing) {
+                followButton.innerHTML = '<i class="fas fa-user-plus"></i> Follow';
+                followButton.classList.add('btn-primary');
+                followButton.classList.remove('btn-outlined');
+            } else {
+                followButton.innerHTML = '<i class="fas fa-user-minus"></i> Unfollow';
+                followButton.classList.remove('btn-primary');
+                followButton.classList.add('btn-outlined');
+            }
+            
+            // Reload profile data to update followers count
+            loadProfileData();
+            
+        } catch (error) {
+            console.error('Error toggling follow:', error);
+        }
+    }
+    
+    function showComments(postId) {
+        // Redirect to post detail page
+        window.location.href = `/post/${postId}`;
+    }
+    
+    function showPostDetail(postId) {
+        // Redirect to post detail page
+        window.location.href = `/post/${postId}`;
+    }
+</script>
+{% endblock %} 
