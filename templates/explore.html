@@ -1,0 +1,349 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Explore | SociSphere{% endblock %}
+
+{% block content %}
+<div class="layout-with-sidebar">
+    <!-- Sidebar -->
+    <aside class="layout-sidebar">
+        <div class="p-4">
+            <nav class="mb-6">
+                <ul class="mb-4">
+                    <li class="mb-2">
+                        <a href="/" class="navbar-link navbar-link-icon py-3">
+                            <i class="fas fa-home"></i>
+                            <span>Home</span>
+                        </a>
+                    </li>
+                    <li class="mb-2">
+                        <a href="/explore" class="navbar-link navbar-link-icon active py-3">
+                            <i class="fas fa-compass"></i>
+                            <span>Explore</span>
+                        </a>
+                    </li>
+                    <li class="mb-2">
+                        <a href="/bookmarks" class="navbar-link navbar-link-icon py-3">
+                            <i class="fas fa-bookmark"></i>
+                            <span>Bookmarks</span>
+                        </a>
+                    </li>
+                    <li class="mb-2">
+                        <a href="/profile" class="navbar-link navbar-link-icon py-3">
+                            <i class="fas fa-user"></i>
+                            <span>Profile</span>
+                        </a>
+                    </li>
+                </ul>
+                
+                <button class="btn btn-primary btn-lg btn-block">
+                    <i class="fas fa-plus"></i> Create Post
+                </button>
+            </nav>
+            
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3 class="text-lg font-semibold">Explore Categories</h3>
+                </div>
+                <div class="card-body p-0">
+                    <ul>
+                        <li class="p-3 border-b">
+                            <a href="#trending" class="flex items-center text-decoration-none explore-nav-item active">
+                                <i class="fas fa-fire mr-3"></i>
+                                <span>Trending Content</span>
+                            </a>
+                        </li>
+                        <li class="p-3 border-b">
+                            <a href="#communities" class="flex items-center text-decoration-none explore-nav-item">
+                                <i class="fas fa-users mr-3"></i>
+                                <span>Communities</span>
+                            </a>
+                        </li>
+                        <li class="p-3 border-b">
+                            <a href="#people" class="flex items-center text-decoration-none explore-nav-item">
+                                <i class="fas fa-user-friends mr-3"></i>
+                                <span>People</span>
+                            </a>
+                        </li>
+                        <li class="p-3">
+                            <a href="#topics" class="flex items-center text-decoration-none explore-nav-item">
+                                <i class="fas fa-hashtag mr-3"></i>
+                                <span>Topics</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="layout-main">
+        <div class="p-4 container-fluid">
+            <!-- Search Section -->
+            <div class="mb-4">
+                <form id="explore-search" class="position-relative">
+                    <input type="text" class="form-control form-control-lg" placeholder="Search for content, communities, or people...">
+                    <button type="submit" class="btn position-absolute end-0 top-0 h-100">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </form>
+            </div>
+
+            <!-- Trending Content Section -->
+            <section id="trending" class="mb-5 explore-section active">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2 class="section-title">Trending Content</h2>
+                    <div class="dropdown">
+                        <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="trending-filter" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-filter"></i> Filter
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="trending-filter">
+                            <li><a class="dropdown-item" href="#">Today</a></li>
+                            <li><a class="dropdown-item" href="#">This Week</a></li>
+                            <li><a class="dropdown-item" href="#">This Month</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="#">All Time</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <!-- Trending Posts -->
+                    <div class="col-12">
+                        <div id="trending-posts" class="card-deck">
+                            <!-- Post items will be loaded here from API -->
+                            <div class="post-loading">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                                <p class="mt-2">Loading trending content...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Communities Section -->
+            <section id="communities" class="mb-5 explore-section">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2 class="section-title">Discover Communities</h2>
+                    <div class="dropdown">
+                        <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="community-filter" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-filter"></i> Categories
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="community-filter">
+                            <li><a class="dropdown-item" href="#">All Categories</a></li>
+                            <li><a class="dropdown-item" href="#">Technology</a></li>
+                            <li><a class="dropdown-item" href="#">Art & Design</a></li>
+                            <li><a class="dropdown-item" href="#">Music</a></li>
+                            <li><a class="dropdown-item" href="#">Science</a></li>
+                            <li><a class="dropdown-item" href="#">Health & Fitness</a></li>
+                            <li><a class="dropdown-item" href="#">Entertainment</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="row" id="communities-container">
+                    <!-- Community cards will be loaded here from API -->
+                    <div class="communities-loading text-center py-5">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-2">Discovering communities for you...</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- People Section -->
+            <section id="people" class="mb-5 explore-section">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2 class="section-title">People to Follow</h2>
+                    <div class="dropdown">
+                        <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="people-filter" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-filter"></i> Suggestions
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="people-filter">
+                            <li><a class="dropdown-item" href="#">Most Popular</a></li>
+                            <li><a class="dropdown-item" href="#">Similar Interests</a></li>
+                            <li><a class="dropdown-item" href="#">Recently Active</a></li>
+                            <li><a class="dropdown-item" href="#">Content Creators</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="row" id="suggested-users">
+                    <!-- User cards will be loaded here from API -->
+                    <div class="users-loading text-center py-5">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-2">Finding interesting people to follow...</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Topics Section -->
+            <section id="topics" class="mb-5 explore-section">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2 class="section-title">Popular Topics</h2>
+                </div>
+
+                <div class="row" id="topics-container">
+                    <!-- Topic cards will be loaded here -->
+                    <div class="topics-loading text-center py-5">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-2">Loading popular topics...</p>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/explore.js' %}"></script>
+<style>
+/* Explore page specific styles */
+.explore-nav-item {
+    color: var(--text-color);
+    transition: all 0.2s ease;
+}
+
+.explore-nav-item:hover {
+    color: var(--primary-color);
+    background-color: var(--bg-light);
+}
+
+.explore-nav-item.active {
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+.explore-section {
+    display: none;
+}
+
+.explore-section.active {
+    display: block;
+}
+
+.section-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--heading-color);
+    margin-bottom: 1rem;
+}
+
+.post-card {
+    transition: transform 0.2s ease;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+}
+
+.post-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+
+.community-card {
+    border-radius: 12px;
+    overflow: hidden;
+    transition: transform 0.2s ease;
+}
+
+.community-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+
+.community-banner {
+    height: 100px;
+    background-size: cover;
+    background-position: center;
+}
+
+.community-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-top: -40px;
+    border: 4px solid white;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+.community-description {
+    margin-bottom: 1rem;
+    height: 60px;
+    overflow: hidden;
+}
+
+.user-card {
+    border-radius: 12px;
+    transition: transform 0.2s ease;
+}
+
+.user-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+
+.avatar-lg {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.user-bio {
+    height: 60px;
+    overflow: hidden;
+    margin-bottom: 1rem;
+    color: var(--text-muted);
+}
+
+.topic-card {
+    border-radius: 12px;
+    transition: transform 0.2s ease;
+}
+
+.topic-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+
+.topic-icon {
+    font-size: 2rem;
+    color: var(--primary-color);
+}
+
+/* Loading animations */
+.post-loading, .communities-loading, .users-loading, .topics-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 200px;
+}
+
+@media (max-width: 768px) {
+    .layout-with-sidebar {
+        flex-direction: column;
+    }
+    
+    .layout-sidebar {
+        width: 100%;
+        margin-bottom: 1rem;
+    }
+    
+    .community-card, .user-card, .topic-card {
+        margin-bottom: 1rem;
+    }
+}
+</style>
+{% endblock %} 

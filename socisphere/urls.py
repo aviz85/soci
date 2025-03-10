@@ -56,6 +56,9 @@ def home_view(request):
     except Exception as e:
         return HttpResponse(f"Error rendering template: {str(e)}")
 
+def explore_view(request):
+    return render(request, 'explore.html')
+
 def login_view(request):
     return render(request, 'auth/login.html')
 
@@ -95,6 +98,7 @@ urlpatterns = [
     
     # Frontend views
     path('', home_view, name='home'),
+    path('explore/', explore_view, name='explore'),
     path('login/', login_view, name='login'),
     path('register/', register_view, name='register'),
     path('profile/', profile_view, name='profile'),
